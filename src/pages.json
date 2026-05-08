@@ -1,0 +1,163 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "ClimbLink",
+        "navigationBarBackgroundColor": "#7eb662",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "Login"
+      }
+    },
+    {
+      "path": "pages/register/register",
+      "style": {
+        "navigationBarTitleText": "Register"
+      }
+    },
+    {
+      "path": "pages/conversation-list/conversation-list",
+      "style": {
+        "navigationBarTitleText": "消息",
+        "navigationBarBackgroundColor": "#7eb662",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/add-friend/add-friend",
+      "style": {
+        "navigationBarTitleText": "添加好友"
+      }
+    },
+    {
+      "path": "pages/community/community",
+      "style": {
+        "navigationBarTitleText": "Community",
+        "navigationBarBackgroundColor": "#7eb662",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/venues/venues",
+      "style": {
+        "navigationBarTitleText": "Venues",
+        "navigationBarBackgroundColor": "#7eb662",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/profile/profile",
+      "style": {
+        "navigationBarTitleText": "Profile",
+        "navigationBarBackgroundColor": "#7eb662",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/blindbox/blindbox",
+      "style": {
+        "navigationBarTitleText": "Mystery Match",
+        "navigationBarBackgroundColor": "#7eb662",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/post-create/post-create",
+      "style": {
+        "navigationBarTitleText": "Create Post"
+      }
+    },
+    {
+      "path": "pages/venue-detail/venue-detail",
+      "style": {
+        "navigationBarTitleText": "Venue Detail"
+      }
+    },
+    {
+      "path": "pages/activity-detail/activity-detail",
+      "style": {
+        "navigationBarTitleText": "Activity Detail"
+      }
+    },
+    {
+      "path": "pages/edit-profile/edit-profile",
+      "style": {
+        "navigationBarTitleText": "Edit Profile"
+      }
+    },
+    {
+      "path": "pages/beginner-guide/beginner-guide",
+      "style": {
+        "navigationBarTitleText": "Beginner Guide"
+      }
+    },
+    {
+      "path": "pages/chat/chat",
+      "style": {
+        "navigationBarTitleText": "Chat"
+      }
+    },
+    {
+      "path": "pages/smart-partner/smart-partner",
+      "style": {
+        "navigationBarTitleText": "Smart Partner"
+      }
+    },
+    {
+      "path": "pages/climb-records/climb-records",
+      "style": {
+        "navigationBarTitleText": "Climb Records"
+      }
+    },
+    {
+      "path": "pages/market/market",
+      "style": {
+        "navigationBarTitleText": "Market"
+      }
+    },
+    {
+      "path": "pages/market-item-detail/market-item-detail",
+      "style": {
+        "navigationBarTitleText": "Item Detail"
+      }
+    },
+    {
+      "path": "pages/market-item-create/market-item-create",
+      "style": {
+        "navigationBarTitleText": "Sell Item"
+      }
+    },
+    {
+      "path": "pages/event-list/event-list",
+      "style": {
+        "navigationBarTitleText": "Events"
+      }
+    },
+    {
+      "path": "pages/event-create/event-create",
+      "style": {
+        "navigationBarTitleText": "Create Event"
+      }
+    },
+    {
+      "path": "pages/climb-request/climb-request",
+      "style": {
+        "navigationBarTitleText": "Climb Request"
+      }
+    }
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#7eb662",
+    "navigationBarTitleText": "ClimbConnect",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f9f5"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

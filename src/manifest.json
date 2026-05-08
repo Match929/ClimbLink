@@ -1,0 +1,25 @@
+{
+  "name": "ClimbLink",
+  "appid": "",
+  "description": "A climbing partner matching app",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wx397d0bc9ba978335",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "router": {
+      "mode": "hash",
+      "base": "/"
+    },
+    "title": "ClimbLink"
+  }
+}

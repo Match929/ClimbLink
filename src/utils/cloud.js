@@ -39,12 +39,20 @@ function generateUUID() {
   });
 }
 
-// 处理头像 URL 的通用工具函数
-function getAvatarUrl(avatar, defaultSeed) {
-  // 如果是云存储 fileID，直接返回
+// 处理头像 URL 的通用工具函数 - 异步版本
+async function getAvatarUrl(avatar, defaultSeed) {
+  // 如果是云存储 fileID，获取临时链接
   if (avatar && (avatar.startsWith('cloud://') || avatar.startsWith('wx'))) {
-    console.log('使用云存储头像:', avatar);
-    return avatar;
+    console.log('使用云存储头像，获取临时链接:', avatar);
+    try {
+      const tempUrlResult = await storageAPI.getTempFileURL(avatar);
+      if (tempUrlResult && tempUrlResult.success && tempUrlResult.tempFileURL) {
+        console.log('临时链接获取成功:', tempUrlResult.tempFileURL);
+        return tempUrlResult.tempFileURL;
+      }
+    } catch (err) {
+      console.error('获取临时链接失败:', err);
+    }
   }
   
   // 如果是正常 URL，直接返回
@@ -60,6 +68,54 @@ function getAvatarUrl(avatar, defaultSeed) {
   return defaultAvatar;
 }
 
+// 获取用户信息（独立函数）
+async function getUserById(userId) {
+  if (!initCloud()) return null;
+  
+  try {
+    console.log('🔍 getUserById - fetching user with ID:', userId);
+    const res = await db.collection('users').doc(userId).get();
+    console.log('🔍 getUserById - full response:', res);
+    console.log('🔍 getUserById - typeof res:', typeof res);
+    console.log('🔍 getUserById - res.data:', res.data);
+    console.log('🔍 getUserById - Object.keys(res):', Object.keys(res));
+    
+    // 处理不同的返回格式
+    let userData = null;
+    if (res.data) {
+      // 如果是对象格式，直接返回
+      if (typeof res.data === 'object' && !Array.isArray(res.data)) {
+        userData = res.data;
+      }
+      // 如果是数组格式，返回第一个元素
+      else if (Array.isArray(res.data) && res.data.length > 0) {
+        userData = res.data[0];
+      }
+    }
+    // 尝试其他可能的返回格式
+    else if (res && typeof res === 'object' && !Array.isArray(res) && !('data' in res)) {
+      userData = res;
+    }
+    
+    // 标准化用户对象，确保有 name 字段
+    if (userData) {
+      userData = {
+        ...userData,
+        name: userData.name || userData.username || userData.nickname || 'Unknown User'
+      };
+      console.log('🔍 getUserById - normalized userData:', userData);
+      console.log('🔍 getUserById - userData keys:', Object.keys(userData));
+      console.log('🔍 getUserById - userData name field:', userData.name);
+    }
+    
+    console.log('🔍 getUserById - returning userData:', userData);
+    return userData;
+  } catch (err) {
+    console.error('❌ 获取用户信息失败:', err);
+    return null;
+  }
+}
+
 // 用户相关操作
 const userAPI = {
   // 注册用户
@@ -67,17 +123,27 @@ const userAPI = {
     if (!initCloud()) return null;
     
     try {
-      const checkRes = await db.collection('users').where({
+      // Check if email already exists
+      const emailCheckRes = await db.collection('users').where({
         email: userData.email
       }).get();
       
-      if (checkRes.data.length > 0) {
-        return { success: false, message: '该邮箱已被注册' };
+      if (emailCheckRes.data.length > 0) {
+        return { success: false, message: 'Email already registered' };
+      }
+      
+      // Check if name (username) already exists
+      const nameCheckRes = await db.collection('users').where({
+        name: userData.name
+      }).get();
+      
+      if (nameCheckRes.data.length > 0) {
+        return { success: false, message: 'Name already taken' };
       }
       
       const userId = generateUUID();
       
-      const result = await db.collection('users').add({
+      const userToAdd = {
         _id: userId,
         email: userData.email,
         password: userData.password,
@@ -88,7 +154,9 @@ const userAPI = {
         labels: [],
         created_at: db.serverDate(),
         updated_at: db.serverDate()
-      });
+      };
+      
+      const result = await db.collection('users').add(userToAdd);
       
       localStorage.setItem('userId', userId);
       localStorage.setItem('userInfo', JSON.stringify({
@@ -100,28 +168,40 @@ const userAPI = {
       
       return { success: true, userId };
     } catch (err) {
-      console.error('注册失败:', err);
-      return { success: false, message: '注册失败，请重试' };
+      console.error('Registration failed:', err);
+      return { success: false, message: 'Registration failed, please try again' };
     }
   },
   
-  async login(email, password) {
+  async login(loginIdentifier, password) {
     if (!initCloud()) {
-      return { success: false, message: '云开发初始化失败' };
+      return { success: false, message: 'Cloud initialization failed' };
     }
     
     try {
-      console.log('尝试登录，邮箱:', email);
+      console.log('Attempting login with identifier:', loginIdentifier);
       
-      const res = await db.collection('users').where({
-        email: email,
-        password: password
-      }).get();
+      // Check if loginIdentifier contains @ to determine if it's email or name
+      const isEmail = loginIdentifier.includes('@');
       
-      console.log('查询结果:', res);
+      let res;
+      if (isEmail) {
+        res = await db.collection('users').where({
+          email: loginIdentifier,
+          password: password
+        }).get();
+      } else {
+        // Try name (username) login
+        res = await db.collection('users').where({
+          name: loginIdentifier,
+          password: password
+        }).get();
+      }
+      
+      console.log('Query result:', res);
       
       if (!res.data || res.data.length === 0) {
-        return { success: false, message: '邮箱或密码错误' };
+        return { success: false, message: 'Invalid credentials' };
       }
       
       const userInfo = res.data[0];
@@ -131,8 +211,8 @@ const userAPI = {
       
       return { success: true, userInfo };
     } catch (err) {
-      console.error('登录失败:', err);
-      return { success: false, message: '登录失败: ' + (err.message || '请重试') };
+      console.error('Login failed:', err);
+      return { success: false, message: 'Login failed: ' + (err.message || 'Please try again') };
     }
   },
   
@@ -144,7 +224,28 @@ const userAPI = {
     
     try {
       const res = await db.collection('users').doc(userId).get();
-      return res.data;
+      console.log('getCurrentUser 响应:', res);
+      
+      // 处理不同的返回格式
+      if (res.data) {
+        // 如果是对象格式，直接返回
+        if (typeof res.data === 'object' && !Array.isArray(res.data)) {
+          return res.data;
+        }
+        // 如果是数组格式，返回第一个元素
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          return res.data[0];
+        }
+      }
+      
+      // 尝试其他可能的返回格式
+      if (res) {
+        if (typeof res === 'object' && !Array.isArray(res)) {
+          return res;
+        }
+      }
+      
+      return null;
     } catch (err) {
       console.error('获取用户信息失败:', err);
       return null;
@@ -246,10 +347,15 @@ const userAPI = {
     if (!initCloud()) return null;
     
     try {
+      console.log('updateUser - userId:', userId);
+      console.log('updateUser - updateData:', updateData);
+      
       const result = await db.collection('users').doc(userId).update({
         ...updateData,
         updated_at: db.serverDate()
       });
+      
+      console.log('updateUser 结果:', result);
       
       // 更新本地缓存
       const currentInfoStr = localStorage.getItem('userInfo');
@@ -261,7 +367,7 @@ const userAPI = {
       return { success: true };
     } catch (err) {
       console.error('更新用户信息失败:', err);
-      return { success: false, message: '更新失败，请重试' };
+      return { success: false, message: '更新失败，请重试: ' + (err.message || '') };
     }
   },
   
@@ -314,16 +420,39 @@ const venueAPI = {
     if (!initCloud() || !venueId) return null;
     
     try {
+      console.log('🔍 getVenueById 开始获取场馆，venueId:', venueId);
       const res = await db.collection('venues').doc(venueId).get();
-      if (res.data) {
+      console.log('🔍 getVenueById 数据库返回结果:', res);
+      console.log('🔍 getVenueById res.data:', res.data);
+      
+      let venueData = null;
+      
+      // 处理返回的数据，可能是数组或对象嵌套结构
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        venueData = res.data[0];
+      } else if (res.data && typeof res.data === 'object') {
+        // 检查是否是对象但有 0 属性的嵌套结构
+        if (res.data[0]) {
+          venueData = res.data[0];
+        } else {
+          venueData = res.data;
+        }
+      }
+      
+      console.log('🔍 getVenueById 处理后的 venueData:', venueData);
+      
+      if (venueData) {
         // 为返回的数据添加 id 字段作为 _id 的别名
-        return {
-          ...res.data,
-          id: res.data._id || res.data.id
+        const result = {
+          ...venueData,
+          id: venueData._id || venueData.id || venueId
         };
+        console.log('🔍 getVenueById 最终返回结果:', result);
+        return result;
       }
       
       // 如果数据库中没有场馆数据，从模拟数据中查找
+      console.log('🔍 getVenueById 数据库中没找到，使用模拟数据');
       const mockVenues = this.getMockVenues();
       return mockVenues.find(v => v._id === venueId || v.id === venueId) || null;
     } catch (err) {
@@ -542,12 +671,7 @@ const climbAPI = {
         // 获取发布者信息
         let userInfo = null;
         if (request.user_id) {
-          try {
-            const userRes = await db.collection('users').doc(request.user_id).get();
-            userInfo = userRes.data;
-          } catch (err) {
-            console.error('获取用户信息失败:', err);
-          }
+          userInfo = await getUserById(request.user_id);
         }
         
         // 获取参与者信息
@@ -640,6 +764,7 @@ const climbAPI = {
     
     try {
       const currentUserId = localStorage.getItem('userId');
+      console.log('getMyRequestsWithApplications - currentUserId:', currentUserId);
       if (!currentUserId) return [];
       
       // 获取我发布的约爬请求
@@ -651,43 +776,66 @@ const climbAPI = {
         .get();
       
       const requests = requestRes.data || [];
+      console.log('getMyRequestsWithApplications - requests:', requests);
       const result = [];
       
       for (const request of requests) {
+        // 验证 request._id 是否有效
+        if (!request._id) {
+          continue;
+        }
+        
         // 获取所有申请者
-        const participantRes = await db.collection('climb_request_participants')
-          .where({
-            request_id: request._id
-          })
-          .get();
+        let participantsData = [];
+        try {
+          const participantRes = await db.collection('climb_request_participants')
+            .where({
+              request_id: request._id
+            })
+            .get();
+          participantsData = participantRes.data || [];
+        } catch (e) {
+          console.error('Error fetching participants:', e);
+        }
         
         // 获取已接受的参与者数量
-        const acceptedRes = await db.collection('climb_request_participants')
-          .where({
-            request_id: request._id,
-            status: 'accepted'
-          })
-          .get();
+        let acceptedCount = 0;
+        try {
+          const acceptedRes = await db.collection('climb_request_participants')
+            .where({
+              request_id: request._id,
+              status: 'accepted'
+            })
+            .get();
+          acceptedCount = acceptedRes.data.length;
+        } catch (e) {
+          console.error('Error fetching accepted count:', e);
+        }
         
         const applicants = [];
         
-        for (const participant of participantRes.data) {
+        for (const participant of participantsData) {
           // 获取申请者用户信息
-          const userRes = await db.collection('users').doc(participant.user_id).get();
+          let userData = null;
+          if (participant.user_id) {
+            userData = await getUserById(participant.user_id);
+          }
+          
           applicants.push({
             ...participant,
-            user: userRes.data
+            user: userData || { name: 'Unknown User', avatar: '' }
           });
         }
         
         result.push({
           ...request,
           applicants,
-          participant_count: acceptedRes.data.length,
+          participant_count: acceptedCount,
           is_owner: true
         });
       }
       
+      console.log('getMyRequestsWithApplications returning:', result);
       return result;
     } catch (err) {
       console.error('获取我的约爬请求失败:', err);
@@ -701,6 +849,7 @@ const climbAPI = {
     
     try {
       const currentUserId = localStorage.getItem('userId');
+      console.log('getMyApplications - currentUserId:', currentUserId);
       if (!currentUserId) return [];
       
       // 获取我的申请记录
@@ -711,37 +860,96 @@ const climbAPI = {
         .get();
       
       const participants = participantRes.data || [];
+      console.log('getMyApplications - participants:', participants);
       const result = [];
       
       for (const participant of participants) {
-        // 获取约爬请求信息
-        const requestRes = await db.collection('climb_requests')
-          .doc(participant.request_id)
-          .get();
+        console.log('Processing participant:', participant);
+        // 验证 request_id 是否有效
+        if (!participant.request_id) {
+          console.log('Skipping, no request_id');
+          continue;
+        }
         
-        const request = requestRes.data;
-        if (!request) continue;
+        // 获取约爬请求信息
+        let request = null;
+        try {
+          const requestRes = await db.collection('climb_requests')
+            .doc(participant.request_id)
+            .get();
+          console.log('📦 requestRes:', requestRes);
+          console.log('📦 requestRes.data:', requestRes.data);
+          
+          // 处理 requestRes.data 可能是数组的情况
+          if (Array.isArray(requestRes.data) && requestRes.data.length > 0) {
+            request = requestRes.data[0];
+          } else if (requestRes.data && typeof requestRes.data === 'object') {
+            // 如果是对象但有 0 属性，也可能是数组
+            if (requestRes.data[0]) {
+              request = requestRes.data[0];
+            } else {
+              request = requestRes.data;
+            }
+          }
+          console.log('📦 Final request object:', request);
+        } catch (e) {
+          console.error('Error fetching request:', e);
+        }
+        
+        if (!request) {
+          console.log('Skipping, no request found');
+          continue;
+        }
+        console.log('📋 Found request:', request);
+        console.log('📋 request keys:', Object.keys(request));
+        console.log('📋 request.user_id:', request.user_id);
+        console.log('📋 request.userId:', request.userId);
+        console.log('📋 request.user:', request.user);
         
         // 获取发布者信息
-        const userRes = await db.collection('users').doc(request.user_id).get();
+        let userData = null;
+        if (request.user_id) {
+          userData = await getUserById(request.user_id);
+          console.log('📋 Found user data via getUserById:', userData);
+        }
+        // 也检查一下 request.userId
+        else if (request.userId) {
+          userData = await getUserById(request.userId);
+          console.log('📋 Found user data via request.userId:', userData);
+        }
+        // 如果 request 中已经有 user 对象，就直接用它
+        else if (request.user) {
+          userData = request.user;
+          console.log('📋 Using request.user directly:', userData);
+        }
         
         // 获取已接受的参与者数量
-        const acceptedRes = await db.collection('climb_request_participants')
-          .where({
-            request_id: participant.request_id,
-            status: 'accepted'
-          })
-          .get();
+        let acceptedCount = 0;
+        try {
+          const acceptedRes = await db.collection('climb_request_participants')
+            .where({
+              request_id: participant.request_id,
+              status: 'accepted'
+            })
+            .get();
+          acceptedCount = acceptedRes.data.length;
+        } catch (e) {
+          console.error('Error fetching accepted count:', e);
+        }
         
-        result.push({
+        const resultItem = {
           ...request,
-          user: userRes.data,
+          user: userData || { name: 'Unknown User', avatar: '' },
           my_status: participant.status,
-          participant_count: acceptedRes.data.length,
+          participant_count: acceptedCount,
           is_owner: false
-        });
+        };
+        console.log('📦 Adding to result:', resultItem);
+        console.log('📦 resultItem.user:', resultItem.user);
+        result.push(resultItem);
       }
       
+      console.log('getMyApplications returning:', result);
       return result;
     } catch (err) {
       console.error('获取我的申请失败:', err);
@@ -924,12 +1132,7 @@ const postAPI = {
       for (const post of posts) {
         let userInfo = null;
         if (post.user_id) {
-          try {
-            const userRes = await db.collection('users').doc(post.user_id).get();
-            userInfo = userRes.data;
-          } catch (err) {
-            console.error('获取用户信息失败:', err);
-          }
+          userInfo = await getUserById(post.user_id);
         }
         
         result.push({
@@ -1051,12 +1254,7 @@ const postAPI = {
       for (const post of posts) {
         let userInfo = null;
         if (post.user_id) {
-          try {
-            const userRes = await db.collection('users').doc(post.user_id).get();
-            userInfo = userRes.data;
-          } catch (err) {
-            console.error('获取用户信息失败:', err);
-          }
+          userInfo = await getUserById(post.user_id);
         }
         
         result.push({
@@ -1157,32 +1355,56 @@ const chatAPI = {
       const currentUserId = localStorage.getItem('userId');
       if (!currentUserId) return null;
       
-      // 查找是否已存在会话
-      // 先查找包含两个用户的会话
-      const memberRes = await db.collection('chat_conversation_members')
+      console.log('查找会话，当前用户:', currentUserId, '对方用户:', otherUserId);
+      
+      // 查询1: 获取所有包含这两个用户中任意一个的成员记录
+      const allMemberRes = await db.collection('chat_conversation_members')
         .where({
           user_id: db.command.in([currentUserId, otherUserId])
         })
         .get();
       
-      // 统计每个会话的成员数
-      const conversationMemberCount = {};
-      memberRes.data.forEach(member => {
-        if (!conversationMemberCount[member.conversation_id]) {
-          conversationMemberCount[member.conversation_id] = 0;
+      // 在内存中统计每个会话的成员
+      const conversationMembers = {};
+      allMemberRes.data.forEach(member => {
+        if (!conversationMembers[member.conversation_id]) {
+          conversationMembers[member.conversation_id] = [];
         }
-        conversationMemberCount[member.conversation_id]++;
+        conversationMembers[member.conversation_id].push(member.user_id);
       });
       
-      // 找到有且只有这两个成员的单聊会话
-      for (const convId in conversationMemberCount) {
-        if (conversationMemberCount[convId] === 2) {
-          const convRes = await db.collection('chat_conversations').doc(convId).get();
-          if (convRes.data && convRes.data.type === 'single') {
-            return convRes.data;
+      // 找出同时包含两个用户的会话
+      const candidateConversationIds = Object.keys(conversationMembers).filter(convId => {
+        const members = conversationMembers[convId];
+        return members.includes(currentUserId) && members.includes(otherUserId) && members.length === 2;
+      });
+      
+      console.log('候选会话ID:', candidateConversationIds);
+      
+      if (candidateConversationIds.length > 0) {
+        // 查询2: 获取所有候选会话的详情
+        const convRes = await db.collection('chat_conversations')
+          .where({
+            _id: db.command.in(candidateConversationIds)
+          })
+          .get();
+        
+        // 找到第一个单聊会话
+        for (const conv of convRes.data) {
+          // 处理不同的返回格式
+          let convData = conv;
+          if (Array.isArray(conv) && conv.length > 0) {
+            convData = conv[0];
+          }
+          
+          if (convData && convData.type === 'single') {
+            console.log('找到已存在的会话:', convData._id);
+            return convData;
           }
         }
       }
+      
+      console.log('未找到已存在的会话，创建新会话');
       
       // 如果没找到，创建新会话
       const conversationId = generateUUID();
@@ -1227,6 +1449,8 @@ const chatAPI = {
       const currentUserId = localStorage.getItem('userId');
       if (!currentUserId) return [];
       
+      console.log('获取会话列表，当前用户ID:', currentUserId);
+      
       // 获取当前用户所有的会话成员记录（包含未读计数）
       const memberRes = await db.collection('chat_conversation_members')
         .where({
@@ -1254,9 +1478,12 @@ const chatAPI = {
         .get();
       
       const conversations = convRes.data || [];
+      console.log('找到的会话数量:', conversations.length);
       
       // 为每个会话获取成员和最后一条消息
       const result = [];
+      const seenUserIds = new Set(); // 用于去重
+      
       for (const conv of conversations) {
         // 获取会话成员
         const convMemberRes = await db.collection('chat_conversation_members')
@@ -1277,7 +1504,26 @@ const chatAPI = {
               _id: db.command.in(memberUserIds)
             })
             .get();
-          otherMembers = userRes.data || [];
+          
+          // 处理用户数据和头像
+          otherMembers = (userRes.data || []).map(user => {
+            // 统一处理用户数据格式
+            let userData = user;
+            if (Array.isArray(user)) {
+              userData = user[0];
+            }
+            return userData;
+          }).filter(Boolean);
+        }
+        
+        // 对于单聊会话，检查是否已经有了该用户的会话（去重）
+        if (conv.type === 'single' && otherMembers.length === 1) {
+          const otherUserId = otherMembers[0]._id;
+          if (seenUserIds.has(otherUserId)) {
+            console.log('跳过重复会话，用户ID:', otherUserId);
+            continue; // 跳过重复的会话
+          }
+          seenUserIds.add(otherUserId);
         }
         
         // 获取最后一条消息
@@ -1291,6 +1537,20 @@ const chatAPI = {
         
         const lastMessage = msgRes.data && msgRes.data.length > 0 ? msgRes.data[0] : null;
         
+        // 处理成员的头像 URL
+        for (const member of otherMembers) {
+          if (member.avatar) {
+            try {
+              const tempUrlResult = await this.getTempFileURL(member.avatar);
+              if (tempUrlResult && tempUrlResult.success) {
+                member.avatarUrl = tempUrlResult.tempFileURL;
+              }
+            } catch (e) {
+              console.error('获取头像临时链接失败:', e);
+            }
+          }
+        }
+        
         result.push({
           ...conv,
           otherMembers,
@@ -1299,6 +1559,7 @@ const chatAPI = {
         });
       }
       
+      console.log('最终返回的会话数量:', result.length);
       return result;
     } catch (err) {
       console.error('获取会话列表失败:', err);
@@ -1387,13 +1648,37 @@ const chatAPI = {
     if (!initCloud()) return null;
     
     try {
+      console.log('🔍 chatAPI.getUserById - fetching user with ID:', userId);
       const res = await db.collection('users').doc(userId).get();
-      return res.data;
+      console.log('🔍 chatAPI.getUserById - full response:', res);
+      
+      let userData = null;
+      if (res.data) {
+        if (typeof res.data === 'object' && !Array.isArray(res.data)) {
+          userData = res.data;
+        } else if (Array.isArray(res.data) && res.data.length > 0) {
+          userData = res.data[0];
+        }
+      } else if (res && typeof res === 'object' && !Array.isArray(res) && !('data' in res)) {
+        userData = res;
+      }
+      
+      if (userData) {
+        userData = {
+          ...userData,
+          _id: userData._id || userData.id,
+          name: userData.name || userData.username || userData.nickname || 'Unknown User'
+        };
+      }
+      
+      console.log('🔍 chatAPI.getUserById - returning userData:', userData);
+      return userData;
     } catch (err) {
-      console.error('获取用户信息失败:', err);
+      console.error('❌ chatAPI.getUserById - 获取用户信息失败:', err);
       return null;
     }
   },
+  
   
   // 清空会话的未读计数
   async clearUnreadCount(conversationId) {
@@ -1511,7 +1796,9 @@ const chatAPI = {
       const currentUserId = localStorage.getItem('userId');
       if (!currentUserId) return [];
       
-      // 先获取当前用户的所有会话
+      console.log('搜索消息，关键词:', keyword);
+      
+      // 查询1: 获取当前用户的所有会话成员记录
       const memberRes = await db.collection('chat_conversation_members')
         .where({
           user_id: currentUserId
@@ -1522,55 +1809,75 @@ const chatAPI = {
       
       if (conversationIds.length === 0) return [];
       
-      // 搜索包含关键词的消息
-      const messages = [];
+      // 查询2: 获取所有会话的所有成员记录（以便快速找到对方用户）
+      const allMemberRes = await db.collection('chat_conversation_members')
+        .where({
+          conversation_id: db.command.in(conversationIds)
+        })
+        .get();
       
-      // 遍历所有会话搜索消息
-      for (const convId of conversationIds) {
-        const msgRes = await db.collection('chat_messages')
+      // 构建会话成员映射
+      const conversationMembersMap = {};
+      allMemberRes.data.forEach(member => {
+        if (!conversationMembersMap[member.conversation_id]) {
+          conversationMembersMap[member.conversation_id] = [];
+        }
+        conversationMembersMap[member.conversation_id].push(member.user_id);
+      });
+      
+      // 收集所有需要的用户ID
+      const allUserIds = new Set();
+      Object.values(conversationMembersMap).forEach(members => {
+        members.forEach(id => allUserIds.add(id));
+      });
+      
+      // 查询3: 批量获取所有用户信息
+      let usersMap = {};
+      if (allUserIds.size > 0) {
+        const userRes = await db.collection('users')
           .where({
-            conversation_id: convId
+            _id: db.command.in([...allUserIds])
           })
-          .orderBy('created_at', 'desc')
           .get();
         
-        const convMessages = msgRes.data || [];
-        
-        // 筛选包含关键词的消息
-        const filtered = convMessages.filter(msg => {
-          return msg.content && 
-                 msg.content.toLowerCase().includes(keyword.toLowerCase());
+        userRes.data.forEach(user => {
+          // 处理不同的返回格式
+          let userData = user;
+          if (Array.isArray(user) && user.length > 0) {
+            userData = user[0];
+          }
+          if (userData && userData._id) {
+            usersMap[userData._id] = userData;
+          }
         });
-        
-        // 添加到结果
-        for (const msg of filtered) {
-          // 获取会话信息
-          const convRes = await db.collection('chat_conversations').doc(convId).get();
-          const conversation = convRes.data;
-          
-          if (!conversation) continue;
-          
-          // 获取会话成员
-          const memberListRes = await db.collection('chat_conversation_members')
-            .where({
-              conversation_id: convId
-            })
-            .get();
-          
-          const memberIds = memberListRes.data
-            .map(m => m.user_id)
-            .filter(id => id !== currentUserId);
-          
-          // 获取对方用户信息
+      }
+      
+      // 查询4: 批量获取所有会话的所有消息
+      const allMsgRes = await db.collection('chat_messages')
+        .where({
+          conversation_id: db.command.in(conversationIds)
+        })
+        .orderBy('created_at', 'desc')
+        .get();
+      
+      // 筛选包含关键词的消息
+      const messages = [];
+      const lowerKeyword = keyword.toLowerCase();
+      
+      for (const msg of allMsgRes.data) {
+        if (msg.content && msg.content.toLowerCase().includes(lowerKeyword)) {
+          // 找到对方用户
+          const convMembers = conversationMembersMap[msg.conversation_id] || [];
+          const otherUserIds = convMembers.filter(id => id !== currentUserId);
           let otherUser = null;
-          if (memberIds.length > 0) {
-            const userRes = await db.collection('users').doc(memberIds[0]).get();
-            otherUser = userRes.data;
+          
+          if (otherUserIds.length > 0) {
+            otherUser = usersMap[otherUserIds[0]];
           }
           
           messages.push({
             _id: msg._id,
-            conversation_id: convId,
+            conversation_id: msg.conversation_id,
             content: msg.content,
             sender_id: msg.sender_id,
             created_at: msg.created_at,
@@ -1580,11 +1887,7 @@ const chatAPI = {
         }
       }
       
-      // 按时间倒序排序
-      messages.sort((a, b) => {
-        return new Date(b.created_at) - new Date(a.created_at);
-      });
-      
+      console.log('找到', messages.length, '条匹配消息');
       return messages;
     } catch (err) {
       console.error('搜索消息失败:', err);
@@ -2041,7 +2344,7 @@ const storageAPI = {
     if (!initCloud()) return null;
     
     try {
-      console.log('开始上传文件:', file.name);
+      console.log('开始上传文件:', file);
       
       // 生成文件名
       const { 
@@ -2050,21 +2353,47 @@ const storageAPI = {
         fileType = '' 
       } = options;
       
-      // 获取文件扩展名
+      // 获取文件扩展名 - 兼容 Web 环境和小程序环境
       let extension = '';
-      if (file.name.lastIndexOf('.') > -1) {
-        extension = file.name.substring(file.name.lastIndexOf('.'));
+      
+      // 先尝试从 file 对象获取
+      if (file && typeof file === 'object' && file.name) {
+        if (file.name.lastIndexOf('.') > -1) {
+          extension = file.name.substring(file.name.lastIndexOf('.'));
+        }
+      }
+      // 如果是字符串路径，尝试从路径获取
+      else if (typeof file === 'string') {
+        if (file.lastIndexOf('.') > -1) {
+          extension = file.substring(file.lastIndexOf('.'));
+        }
+      }
+      // 默认使用 jpg
+      if (!extension) {
+        extension = '.jpg';
       }
       
       // 构建云存储路径
       const cloudPath = `${directory}/${fileName}${extension}`;
       console.log('云存储路径:', cloudPath);
       
-      // 上传文件
-      const result = await app.uploadFile({
-        cloudPath: cloudPath,
-        filePath: file
-      });
+      // 上传文件 - 兼容 Web 环境
+      let result;
+      
+      // 检查是否是 Web 环境的 File 对象
+      if (typeof file === 'object' && file instanceof File) {
+        // Web 环境使用 uploadFile API
+        result = await app.uploadFile({
+          cloudPath: cloudPath,
+          file: file  // Web 环境用 file 参数
+        });
+      } else {
+        // 小程序环境使用 filePath 参数
+        result = await app.uploadFile({
+          cloudPath: cloudPath,
+          filePath: file
+        });
+      }
       
       console.log('上传成功:', result);
       

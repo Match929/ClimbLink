@@ -3,7 +3,7 @@ const BASE_URL = 'http://localhost:8080/api';
 // 统一请求方法
 function request(url, method, data) {
   return new Promise((resolve, reject) => {
-    const token = uni.getStorageSync('token');
+    const token = localStorage.getItem('token');
     
     const header = {
       'Content-Type': 'application/json'

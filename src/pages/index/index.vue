@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <!-- 顶部标题栏 -->
+    <!-- Top Header Bar -->
     <view class="header">
       <view class="header-top">
         <view>
@@ -14,7 +14,7 @@
       </view>
     </view>
 
-    <!-- 盲盒搭子超显眼入口 -->
+    <!-- Mystery Match Entry -->
     <view class="blind-box-section">
       <view class="blind-box-card" @click="navigateTo('/pages/blindbox/blindbox')">
         <view class="blind-box-content">
@@ -31,7 +31,7 @@
       </view>
     </view>
 
-    <!-- 热门活动 - 横向拖拽式 -->
+    <!-- Popular Events - Horizontal Scroll -->
     <view class="section">
       <view class="section-header">
         <text class="section-title">📅 Popular Events</text>
@@ -44,13 +44,13 @@
             <image :src="activity.image" class="event-image" mode="aspectFill" />
             <view class="event-overlay"></view>
             
-            <!-- 价格标签 -->
+            <!-- Price Tag -->
             <view class="price-tag">{{ activity.price }}</view>
             
-            <!-- 标签 -->
+            <!-- Tag -->
             <view class="activity-badge">{{ activity.tag }}</view>
 
-            <!-- 底部信息 -->
+            <!-- Bottom Info -->
             <view class="event-info">
               <text class="event-name">{{ activity.title }}</text>
               <view class="event-details">
@@ -63,7 +63,7 @@
       </scroll-view>
     </view>
 
-    <!-- 二级导航栏 -->
+    <!-- Secondary Navigation Bar -->
     <view class="nav-section">
       <view class="nav-card">
         <view class="nav-grid">
@@ -77,7 +77,7 @@
       </view>
     </view>
 
-    <!-- Market板块内容 -->
+    <!-- Market Section Content -->
     <view v-if="activeTab === 'Market'" class="section">
       <view class="market-card" @click="navigateTo('/pages/market/market')">
         <view class="market-header">
@@ -241,18 +241,18 @@ const activities = [
   },
 ]
 
-// 使用云数据
+// Use cloud data
 const venues = ref([])
 
-// 将云场馆数据转换为首页需要的格式
+// Convert cloud venue data to the format needed for the homepage
 const transformVenueData = (venue, index) => {
-  // 从场馆价格信息
-  let priceDisplay = '¥18/visit'
+  // From venue price information
+  let priceDisplay = '$18/visit'
   if (venue.prices && venue.prices.length > 0) {
     priceDisplay = venue.prices[0].price
   }
   
-  // 模拟距离
+  // Simulate distance
   const distances = ['1.2km', '2.5km', '3.8km']
   const crowds = ['Moderate', 'Relaxed', 'Busy']
   
@@ -278,11 +278,11 @@ const getCrowdText = (crowd) => {
   return crowd
 }
 
-const loadUserInfo = () => {
-  const userId = uni.getStorageSync('userId')
-  const userInfo = uni.getStorageSync('userInfo')
+const loadUserInfo = async () => {
+  const userId = localStorage.getItem('userId')
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
   if (userInfo) {
-    userAvatar.value = userInfo.avatar || ''
+    userAvatar.value = await cloud.getAvatarUrl(userInfo.avatar, userId)
     if (userInfo.name) {
       userInitial.value = userInfo.name.charAt(0).toUpperCase()
     }
@@ -308,28 +308,28 @@ const navigateTo = (url) => {
   })
 }
 
-// 点击场馆跳转到详情页
+// Click venue to navigate to detail page
 const navigateToVenueDetail = (venue) => {
   const venueId = venue._id || venue.id
-  console.log('点击场馆，ID:', venueId)
+  console.log('Clicked venue, ID:', venueId)
   uni.navigateTo({
     url: `/pages/venue-detail/venue-detail?id=${venueId}`,
     fail: (err) => {
-      console.error('导航失败:', err)
+      console.error('Navigation failed:', err)
     }
   })
 }
 
-// 加载场馆数据
+// Load venue data
 const loadVenues = async () => {
   try {
     isLoading.value = true
-    // 首页只显示 3 个热门场馆，避免全表扫描
+    // Homepage only shows 3 popular venues to avoid full table scan
     const data = await cloud.venue.getVenues({}, 3)
-    console.log('加载到的场馆数据:', data)
+    console.log('Loaded venue data:', data)
     venues.value = data.map((venue, index) => transformVenueData(venue, index))
   } catch (error) {
-    console.error('加载场馆失败:', error)
+    console.error('Failed to load venues:', error)
   } finally {
     isLoading.value = false
   }

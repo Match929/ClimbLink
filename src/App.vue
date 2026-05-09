@@ -7,14 +7,10 @@
 export default {
   onLaunch: function() {
     console.log('App Launch')
-    // 每次应用启动时清除登录状态，方便测试
-    try {
-      uni.removeStorageSync('userId')
-      uni.removeStorageSync('userInfo')
-      console.log('已清除登录状态')
-    } catch (e) {
-      console.error('清除登录状态失败:', e)
-    }
+    // Always redirect to home page on app launch
+    uni.reLaunch({
+      url: '/pages/index/index'
+    })
   },
   onShow: function() {
     console.log('App Show')

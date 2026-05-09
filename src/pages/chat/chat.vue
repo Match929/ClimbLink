@@ -7,15 +7,15 @@
       <view class="user-info">
         <image 
           class="user-avatar" 
-          :src="chatPartner.avatar || getDefaultAvatar(chatPartner._id)" 
-          mode="aspectFill" 
+          :src="chatPartner.avatarUrl || chatPartner.avatar || getDefaultAvatar(chatPartner._id)" 
+          mode="aspectFill"
         />
         <view class="user-details">
-          <text class="user-name">{{ chatPartner.name || '加载中...' }}</text>
+          <text class="user-name">{{ chatPartner.name || 'Loading...' }}</text>
         </view>
       </view>
-      <view class="menu-btn" @click="showClimbInviteModal">
-        <text class="menu-icon">🧗</text>
+      <view class="invite-btn" @click="showClimbInviteModal">
+        <text class="invite-text">Invite</text>
       </view>
     </view>
     
@@ -37,35 +37,35 @@
         >
           <image 
             class="msg-avatar" 
-            :src="msg.isSelf ? (selfUser.avatar || getDefaultAvatar(selfUser._id)) : (chatPartner.avatar || getDefaultAvatar(chatPartner._id))" 
+            :src="msg.isSelf ? (selfUser.avatarUrl || selfUser.avatar || getDefaultAvatar(selfUser._id)) : (chatPartner.avatarUrl || chatPartner.avatar || getDefaultAvatar(chatPartner._id))" 
             mode="aspectFill" 
           />
           <view class="msg-content">
             <!-- 约爬申请卡片 -->
             <view v-if="msg.type === 'climb_request' && msg.extra" class="climb-request-card">
               <view class="card-header">
-                <text class="card-title">🧗 约爬申请</text>
+                <text class="card-title">🧗 Climb Request</text>
               </view>
               <view class="card-body">
                 <view class="card-info">
-                  <text class="info-label">📍 场馆</text>
+                  <text class="info-label">📍 Venue</text>
                   <text class="info-value">{{ msg.extra.venueName }}</text>
                 </view>
                 <view class="card-info">
-                  <text class="info-label">📅 日期</text>
+                  <text class="info-label">📅 Date</text>
                   <text class="info-value">{{ msg.extra.climbDate }}</text>
                 </view>
                 <view class="card-info">
-                  <text class="info-label">⏰ 时间</text>
+                  <text class="info-label">⏰ Time</text>
                   <text class="info-value">{{ msg.extra.climbTime }}</text>
                 </view>
                 <view class="card-info">
-                  <text class="info-label">👥 等级</text>
+                  <text class="info-label">👥 Level</text>
                   <text class="info-value">{{ msg.extra.levelRequirement }}</text>
                 </view>
                 <view class="card-info">
-                  <text class="info-label">🎯 人数</text>
-                  <text class="info-value">{{ msg.extra.maxParticipants }} 人</text>
+                  <text class="info-label">🎯 Participants</text>
+                  <text class="info-value">{{ msg.extra.maxParticipants }} people</text>
                 </view>
                 <view v-if="msg.extra.tags && msg.extra.tags.length > 0" class="card-tags">
                   <view 
@@ -134,7 +134,7 @@
     <view v-if="showModal" class="modal-overlay" @click="closeModal">
       <view class="modal-content" @click.stop>
         <view class="modal-header">
-          <text class="modal-title">发送约爬邀请</text>
+          <text class="modal-title">Send Climb Invite</text>
           <view class="modal-close" @click="closeModal">
             <text class="close-icon">×</text>
           </view>
@@ -158,7 +158,7 @@
           <view v-if="activeTab === 'existing'" class="existing-requests">
             <view v-if="myRequests.length === 0" class="empty-state">
               <text class="empty-icon">📭</text>
-              <text class="empty-text">暂无约爬请求</text>
+              <text class="empty-text">No climb requests yet</text>
             </view>
             <view v-else class="request-list">
               <view 
@@ -181,7 +181,7 @@
           <!-- 新建约爬邀请 -->
           <view v-if="activeTab === 'new'" class="new-invite">
             <view class="input-group">
-              <text class="input-label">场馆</text>
+              <text class="input-label">Venue</text>
               <picker 
                 mode="selector" 
                 :range="venueList" 
@@ -190,7 +190,7 @@
               >
                 <view class="form-picker">
                   <text :class="{ 'placeholder': !newInvite.venueName }">
-                    {{ newInvite.venueName || '请选择场馆' }}
+                    {{ newInvite.venueName || 'Select venue' }}
                   </text>
                   <text class="picker-arrow">›</text>
                 </view>
@@ -198,7 +198,7 @@
             </view>
             <view class="input-row">
               <view class="input-group half">
-                <text class="input-label">日期</text>
+                <text class="input-label">Date</text>
                 <picker 
                   mode="date" 
                   :value="newInvite.climbDate"
@@ -206,14 +206,14 @@
                 >
                   <view class="form-picker">
                     <text :class="{ 'placeholder': !newInvite.climbDate }">
-                      {{ newInvite.climbDate || '选择日期' }}
+                      {{ newInvite.climbDate || 'Select date' }}
                     </text>
                     <text class="picker-arrow">›</text>
                   </view>
                 </picker>
               </view>
               <view class="input-group half">
-                <text class="input-label">时间</text>
+                <text class="input-label">Time</text>
                 <picker 
                   mode="time" 
                   :value="newInvite.climbTime"
@@ -221,7 +221,7 @@
                 >
                   <view class="form-picker">
                     <text :class="{ 'placeholder': !newInvite.climbTime }">
-                      {{ newInvite.climbTime || '选择时间' }}
+                      {{ newInvite.climbTime || 'Select time' }}
                     </text>
                     <text class="picker-arrow">›</text>
                   </view>
@@ -230,7 +230,7 @@
             </view>
             <view class="input-row">
               <view class="input-group half">
-                <text class="input-label">等级要求</text>
+                <text class="input-label">Level Req</text>
                 <picker 
                   mode="selector" 
                   :range="levelOptions" 
@@ -238,14 +238,14 @@
                 >
                   <view class="form-picker">
                     <text :class="{ 'placeholder': !newInvite.levelRequirement }">
-                      {{ newInvite.levelRequirement || '选择等级' }}
+                      {{ newInvite.levelRequirement || 'Select level' }}
                     </text>
                     <text class="picker-arrow">›</text>
                   </view>
                 </picker>
               </view>
               <view class="input-group half">
-                <text class="input-label">人数</text>
+                <text class="input-label">Participants</text>
                 <picker 
                   mode="selector" 
                   :range="participantOptions" 
@@ -253,7 +253,7 @@
                 >
                   <view class="form-picker">
                     <text :class="{ 'placeholder': !newInvite.maxParticipants }">
-                      {{ newInvite.maxParticipants ? newInvite.maxParticipants + ' 人' : '选择人数' }}
+                      {{ newInvite.maxParticipants ? newInvite.maxParticipants + ' people' : 'Select count' }}
                     </text>
                     <text class="picker-arrow">›</text>
                   </view>
@@ -261,11 +261,15 @@
               </view>
             </view>
             <view class="input-group">
-              <text class="input-label">备注</text>
+              <text class="input-label">Notes</text>
               <input 
                 class="form-input" 
                 v-model="newInvite.notes"
-                placeholder="说点什么..."
+                placeholder="Say something..."
+                type="text"
+                :disabled="false"
+                focus="false"
+                confirm-type="done"
               />
             </view>
           </view>
@@ -273,14 +277,14 @@
         
         <view class="modal-footer">
           <view class="btn cancel-btn" @click="closeModal">
-            <text class="btn-text">取消</text>
+            <text class="btn-text">Cancel</text>
           </view>
           <view 
             class="btn confirm-btn" 
             :class="{ disabled: !canSend }"
             @click="sendClimbInvite"
           >
-            <text class="btn-text">发送</text>
+            <text class="btn-text">Send</text>
           </view>
         </view>
       </view>
@@ -293,19 +297,19 @@ import { ref, nextTick, onMounted } from 'vue'
 import cloud from '@/utils/cloud.js'
 
 const tagNames = {
-  bouldering: '抱石',
-  top_rope: '顶绳',
-  lead_climbing: '先锋',
-  speed_climbing: '速度',
-  beginner_friendly: '新手友好',
-  skill_share: '技术交流',
-  casual_fun: '轻松娱乐',
-  intense_training: '高强度训练',
-  morning: '上午',
-  afternoon: '下午',
-  evening: '晚上',
-  weekend: '周末',
-  weekday: '工作日'
+  bouldering: 'Bouldering',
+  top_rope: 'Top Rope',
+  lead_climbing: 'Lead Climbing',
+  speed_climbing: 'Speed Climbing',
+  beginner_friendly: 'Beginner Friendly',
+  skill_share: 'Skill Share',
+  casual_fun: 'Casual Fun',
+  intense_training: 'Intense Training',
+  morning: 'Morning',
+  afternoon: 'Afternoon',
+  evening: 'Evening',
+  weekend: 'Weekend',
+  weekday: 'Weekday'
 }
 
 const scrollToView = ref('')
@@ -318,8 +322,8 @@ const isLoading = ref(true)
 const showModal = ref(false)
 const activeTab = ref('existing')
 const tabs = [
-  { id: 'existing', name: '已有请求' },
-  { id: 'new', name: '新建邀请' }
+  { id: 'existing', name: 'Existing Requests' },
+  { id: 'new', name: 'New Invite' }
 ]
 const myRequests = ref([])
 const selectedRequest = ref(null)
@@ -334,7 +338,7 @@ const newInvite = ref({
 
 // 选择器选项
 const venueList = ref([])
-const levelOptions = ['不限', 'V0-V2', 'V2-V4', 'V4-V6', 'V6-V8', 'V8+']
+const levelOptions = ['Any', 'V0-V2', 'V2-V4', 'V4-V6', 'V6-V8', 'V8+']
 const participantOptions = ['2', '3', '4', '5', '6']
 
 const chatPartner = ref({
@@ -377,16 +381,16 @@ const loadMessages = async () => {
   
   try {
     const data = await cloud.chat.getMessages(conversationId.value)
-    const currentUserId = uni.getStorageSync('userId')
+    const currentUserId = localStorage.getItem('userId')
     
     messages.value = data.map(msg => ({
       ...msg,
       isSelf: msg.sender_id === currentUserId
     }))
   } catch (err) {
-    console.error('加载消息失败:', err)
+    console.error('Failed to load messages:', err)
     uni.showToast({
-      title: '加载失败',
+      title: 'Failed to load',
       icon: 'none'
     })
   } finally {
@@ -409,9 +413,9 @@ const sendMessage = async () => {
       scrollToBottom()
     }
   } catch (err) {
-    console.error('发送消息失败:', err)
+    console.error('Failed to send message:', err)
     uni.showToast({
-      title: '发送失败',
+      title: 'Failed to send',
       icon: 'none'
     })
     inputText.value = content
@@ -434,12 +438,12 @@ const showClimbInviteModal = () => {
 
 const loadVenues = async () => {
   try {
-    console.log('开始加载场馆...')
+    console.log('Loading venues...')
     const venues = await cloud.venue.getVenues()
-    console.log('获取到的场馆:', venues)
+    console.log('Got venues:', venues)
     venueList.value = venues || []
     if (venueList.value.length === 0) {
-      console.log('使用备用场馆数据')
+      console.log('Using fallback venue data')
       venueList.value = [
         { name: 'Rock Time Gym' },
         { name: 'Climb Zone' },
@@ -447,7 +451,7 @@ const loadVenues = async () => {
       ]
     }
   } catch (err) {
-    console.error('加载场馆失败:', err)
+    console.error('Failed to load venues:', err)
     venueList.value = [
       { name: 'Rock Time Gym' },
       { name: 'Climb Zone' },
@@ -498,7 +502,7 @@ const loadMyRequests = async () => {
     const requests = await cloud.climb.getMyRequests()
     myRequests.value = requests || []
   } catch (err) {
-    console.error('加载约爬请求失败:', err)
+    console.error('Failed to load climb requests:', err)
     myRequests.value = []
   }
 }
@@ -572,8 +576,8 @@ const sendClimbInvite = async () => {
   }
   
   const content = activeTab.value === 'existing' 
-    ? '我发起了一个约爬请求，一起去吗？' 
-    : (newInvite.value.notes || '要不要一起去攀岩？')
+    ? 'I created a climb request, want to go?' 
+    : (newInvite.value.notes || 'Want to go climbing together?')
   
   try {
     const newMsg = await cloud.chat.sendMessage(
@@ -589,14 +593,14 @@ const sendClimbInvite = async () => {
       scrollToBottom()
       closeModal()
       uni.showToast({
-        title: '发送成功',
+        title: 'Sent successfully',
         icon: 'success'
       })
     }
   } catch (err) {
-    console.error('发送约爬邀请失败:', err)
+    console.error('Failed to send climb invite:', err)
     uni.showToast({
-      title: '发送失败',
+      title: 'Failed to send',
       icon: 'none'
     })
   }
@@ -614,7 +618,7 @@ const handleAcceptRequest = (msg) => {
       if (res.confirm) {
         try {
           const requestId = msg.extra.requestId
-          const result = await cloud.climb.respondClimbInvite(requestId, 'accepted', msg._id)
+          const result = await cloud.chat.respondClimbInvite(requestId, 'accepted', msg._id)
           
           if (result?.success) {
             // 更新本地消息状态
@@ -653,7 +657,7 @@ const handleRejectRequest = (msg) => {
       if (res.confirm) {
         try {
           const requestId = msg.extra.requestId
-          const result = await cloud.climb.respondClimbInvite(requestId, 'rejected', msg._id)
+          const result = await cloud.chat.respondClimbInvite(requestId, 'rejected', msg._id)
           
           if (result?.success) {
             // 更新本地消息状态
@@ -681,17 +685,43 @@ const handleRejectRequest = (msg) => {
 }
 
 const loadChatPartner = async (userId) => {
+  console.log('📞 loadChatPartner - trying to load user with ID:', userId)
   try {
     const user = await cloud.chat.getUserById(userId)
+    console.log('📞 loadChatPartner - got user:', user)
     if (user) {
       chatPartner.value = user
+      
+      // 处理聊天伙伴的头像
+      if (user.avatar) {
+        try {
+          const tempUrlResult = await cloud.storage.getTempFileURL(user.avatar)
+          if (tempUrlResult && tempUrlResult.success) {
+            chatPartner.value.avatarUrl = tempUrlResult.tempFileURL
+          }
+        } catch (e) {
+          console.error('Failed to get chat partner avatar temp URL:', e)
+        }
+      }
+    } else {
+      console.log('📞 loadChatPartner - user is null, setting default')
+      chatPartner.value = {
+        _id: userId,
+        name: 'Unknown User',
+        avatar: ''
+      }
     }
   } catch (err) {
-    console.error('加载用户信息失败:', err)
+    console.error('Failed to load user info:', err)
+    chatPartner.value = {
+      _id: userId,
+      name: 'Unknown User',
+      avatar: ''
+    }
   }
 }
 
-onMounted(() => {
+const initPage = async () => {
   const pages = getCurrentPages()
   const currentPage = pages[pages.length - 1]
   const options = currentPage.options
@@ -707,13 +737,30 @@ onMounted(() => {
     loadChatPartner(options.otherUserId)
   }
   
-  selfUser.value._id = uni.getStorageSync('userId')
-  selfUser.value.name = uni.getStorageSync('userInfo')?.name || ''
-  selfUser.value.avatar = uni.getStorageSync('userInfo')?.avatar || ''
+  selfUser.value._id = localStorage.getItem('userId')
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+  selfUser.value.name = userInfo?.name || ''
+  selfUser.value.avatar = userInfo?.avatar || ''
+  
+  // 处理自己的头像
+  if (selfUser.value.avatar) {
+    try {
+      const tempUrlResult = await cloud.storage.getTempFileURL(selfUser.value.avatar)
+      if (tempUrlResult && tempUrlResult.success) {
+        selfUser.value.avatarUrl = tempUrlResult.tempFileURL
+      }
+    } catch (e) {
+      console.error('Failed to get my avatar temp URL:', e)
+    }
+  }
   
   loadMessages().then(() => {
     scrollToBottom()
   })
+}
+
+onMounted(() => {
+  initPage()
 })
 </script>
 
@@ -775,17 +822,19 @@ onMounted(() => {
   color: #333;
 }
 
-.menu-btn {
-  width: 80rpx;
-  height: 80rpx;
+.invite-btn {
+  padding: 12rpx 24rpx;
+  background-color: #7eb662;
+  border-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.menu-icon {
-  font-size: 40rpx;
-  color: #666;
+.invite-text {
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 500;
 }
 
 .messages-container {
@@ -1070,7 +1119,7 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: 99;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1085,6 +1134,8 @@ onMounted(() => {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
+  z-index: 100;
+  position: relative;
 }
 
 .modal-header {
@@ -1246,12 +1297,16 @@ onMounted(() => {
 
 .form-input {
   width: 100%;
-  padding: 20rpx 24rpx;
+  height: 80rpx;
+  padding: 0 24rpx;
   background-color: #f5f5f5;
   border-radius: 12rpx;
   font-size: 28rpx;
   border: none;
   box-sizing: border-box;
+  line-height: 1.5;
+  position: relative;
+  z-index: 101;
 }
 
 .form-picker {

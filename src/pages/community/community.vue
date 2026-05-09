@@ -241,14 +241,19 @@
             v-for="application in myApplications" 
             :key="application._id"
             class="outgoing-request-card"
+            :data-application="JSON.stringify(application)"
+            @click="console.log('🎯 Outgoing card clicked:', application)"
           >
             <view class="outgoing-header">
               <image 
                 :src="application.user?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + application.user_id" 
                 class="outgoing-avatar"
+                @click="console.log('🎯 Avatar clicked, application:', application)"
               ></image>
               <view class="outgoing-info">
-                <text class="outgoing-username">{{ application.user?.name || 'Unknown' }}</text>
+                <text class="outgoing-username" @click="console.log('🎯 Username clicked, application:', application)">
+                  {{ application.user?.name || 'Unknown' }}
+                </text>
                 <text class="outgoing-venue">{{ application.venue_name }}</text>
                 <text class="outgoing-time">{{ application.climb_date }} · {{ application.climb_time }}</text>
               </view>
@@ -499,7 +504,7 @@
               <text class="form-label">Level</text>
               <picker 
                 mode="selector" 
-                :range="['不限', 'V0-V2', 'V2-V4', 'V4-V6', 'V6-V8', 'V8+']" 
+                :range="['All', 'V0', 'V1-V2', 'V3-V4', 'V5-V6', 'V7-V8', 'V9+']" 
                 :value="getLevelIndex(editingRequest.level_requirement)" 
                 @change="onEditLevelChange"
               >
@@ -652,7 +657,7 @@ const filteredConversations = computed(() => {
 
 // 判断是否登录
 const isLoggedIn = computed(() => {
-  return !!uni.getStorageSync('userId')
+  return !!localStorage.getItem('userId')
 })
 
 // 监听 Messages 标签页
@@ -709,7 +714,7 @@ const loadPosts = async () => {
   try {
     const data = await cloud.post.getPosts()
     // 转换数据格式以匹配模板
-    const currentUserId = uni.getStorageSync('userId')
+    const currentUserId = localStorage.getItem('userId')
     posts.value = data.map(post => ({
       id: post._id,
       user: {
@@ -978,6 +983,12 @@ const loadClimbRequests = async () => {
       cloud.climb.getMyRequestsWithApplications(),
       cloud.climb.getMyApplications()
     ])
+    console.log('loadClimbRequests - requests:', requests)
+    console.log('loadClimbRequests - applications:', applications)
+    if (applications.length > 0) {
+      console.log('loadClimbRequests - first application user:', applications[0].user)
+      console.log('loadClimbRequests - first application user keys:', applications[0].user ? Object.keys(applications[0].user) : 'no user')
+    }
     myRequests.value = requests || []
     myApplications.value = applications || []
   } catch (err) {
@@ -1017,7 +1028,7 @@ const closeEditModal = () => {
 }
 
 const getLevelIndex = (level) => {
-  const levels = ['不限', 'V0-V2', 'V2-V4', 'V4-V6', 'V6-V8', 'V8+']
+  const levels = ['All', 'V0', 'V1-V2', 'V3-V4', 'V5-V6', 'V7-V8', 'V9+']
   return levels.indexOf(level)
 }
 
@@ -1036,7 +1047,7 @@ const onEditTimeChange = (e) => {
 }
 
 const onEditLevelChange = (e) => {
-  const levels = ['不限', 'V0-V2', 'V2-V4', 'V4-V6', 'V6-V8', 'V8+']
+  const levels = ['All', 'V0', 'V1-V2', 'V3-V4', 'V5-V6', 'V7-V8', 'V9+']
   editingRequest.value.level_requirement = levels[e.detail.value]
 }
 
@@ -1424,7 +1435,7 @@ const performSearch = async () => {
   
   try {
     // 搜索所有历史消息
-    const results = await cloud.post.searchMessages(searchKeyword.value)
+    const results = await cloud.chat.searchMessages(searchKeyword.value)
     searchResults.value = results
   } catch (err) {
     console.error('搜索失败:', err)

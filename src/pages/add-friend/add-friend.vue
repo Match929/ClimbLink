@@ -4,7 +4,7 @@
       <view class="back-btn" @click="goBack">
         <text class="back-icon">←</text>
       </view>
-      <text class="title">添加好友</text>
+      <text class="title">Add Friends</text>
       <view class="placeholder"></view>
     </view>
 
@@ -14,7 +14,7 @@
         <input 
           v-model="searchKeyword" 
           class="search-input" 
-          placeholder="搜索用户昵称..."
+          placeholder="Search user name..."
           @confirm="handleSearch"
         />
         <view v-if="searchKeyword" class="clear-btn" @click="clearSearch">
@@ -22,17 +22,17 @@
         </view>
       </view>
       <view class="search-btn" @click="handleSearch">
-        <text class="search-btn-text">搜索</text>
+        <text class="search-btn-text">Search</text>
       </view>
     </view>
 
     <scroll-view class="user-list" scroll-y>
       <view v-if="isSearching" class="loading-container">
-        <text class="loading-text">搜索中...</text>
+        <text class="loading-text">Searching...</text>
       </view>
 
       <view v-else-if="hasSearched && searchResults.length === 0" class="empty-container">
-        <text class="empty-text">未找到相关用户</text>
+        <text class="empty-text">No users found</text>
       </view>
 
       <view v-else-if="searchResults.length > 0">
@@ -50,16 +50,16 @@
           <view class="user-info">
             <text class="name">{{ user.name }}</text>
             <text v-if="user.climbing_level" class="level">{{ user.climbing_level }}</text>
-            <text v-else class="bio">{{ user.bio || '暂无简介' }}</text>
+            <text v-else class="bio">{{ user.bio || 'No bio' }}</text>
           </view>
           <view class="chat-btn">
-            <text class="chat-btn-text">发起聊天</text>
+            <text class="chat-btn-text">Start Chat</text>
           </view>
         </view>
       </view>
 
       <view v-else class="tips-container">
-        <text class="tips-text">输入用户昵称进行搜索</text>
+        <text class="tips-text">Enter user name to search</text>
       </view>
     </scroll-view>
   </view>
@@ -77,7 +77,7 @@ const searchResults = ref([])
 const handleSearch = async () => {
   if (!searchKeyword.value.trim()) {
     uni.showToast({
-      title: '请输入搜索关键词',
+      title: 'Please enter search keyword',
       icon: 'none'
     })
     return
@@ -87,15 +87,15 @@ const handleSearch = async () => {
   hasSearched.value = true
 
   try {
-    const currentUserId = uni.getStorageSync('userId')
+    const currentUserId = localStorage.getItem('userId')
     const results = await cloud.chat.searchUsers(searchKeyword.value.trim())
     
-    // 过滤掉自己
+    // Filter out self
     searchResults.value = results.filter(user => user._id !== currentUserId)
   } catch (err) {
-    console.error('搜索失败:', err)
+    console.error('Search failed:', err)
     uni.showToast({
-      title: '搜索失败',
+      title: 'Search failed',
       icon: 'none'
     })
   } finally {
@@ -115,7 +115,7 @@ const getDefaultAvatar = (userId) => {
 
 const startChat = async (user) => {
   try {
-    uni.showLoading({ title: '创建会话...' })
+    uni.showLoading({ title: 'Creating conversation...' })
     const conversation = await cloud.chat.getOrCreateSingleConversation(user._id)
     
     if (conversation) {
@@ -126,15 +126,15 @@ const startChat = async (user) => {
     } else {
       uni.hideLoading()
       uni.showToast({
-        title: '创建会话失败',
+        title: 'Failed to create conversation',
         icon: 'none'
       })
     }
   } catch (err) {
     uni.hideLoading()
-    console.error('创建会话失败:', err)
+    console.error('Failed to create conversation:', err)
     uni.showToast({
-      title: '创建会话失败',
+      title: 'Failed to create conversation',
       icon: 'none'
     })
   }

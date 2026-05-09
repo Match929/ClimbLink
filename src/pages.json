@@ -5,19 +5,22 @@
       "style": {
         "navigationBarTitleText": "ClimbLink",
         "navigationBarBackgroundColor": "#7eb662",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/login/login",
       "style": {
-        "navigationBarTitleText": "Login"
+        "navigationBarTitleText": "Login",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/register/register",
       "style": {
-        "navigationBarTitleText": "Register"
+        "navigationBarTitleText": "Register",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -25,13 +28,15 @@
       "style": {
         "navigationBarTitleText": "消息",
         "navigationBarBackgroundColor": "#7eb662",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/add-friend/add-friend",
       "style": {
-        "navigationBarTitleText": "添加好友"
+        "navigationBarTitleText": "添加好友",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -39,7 +44,8 @@
       "style": {
         "navigationBarTitleText": "Community",
         "navigationBarBackgroundColor": "#7eb662",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -47,7 +53,8 @@
       "style": {
         "navigationBarTitleText": "Venues",
         "navigationBarBackgroundColor": "#7eb662",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -55,7 +62,8 @@
       "style": {
         "navigationBarTitleText": "Profile",
         "navigationBarBackgroundColor": "#7eb662",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
       }
     },
     {
@@ -63,91 +71,106 @@
       "style": {
         "navigationBarTitleText": "Mystery Match",
         "navigationBarBackgroundColor": "#7eb662",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/post-create/post-create",
       "style": {
-        "navigationBarTitleText": "Create Post"
+        "navigationBarTitleText": "Create Post",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/venue-detail/venue-detail",
       "style": {
-        "navigationBarTitleText": "Venue Detail"
+        "navigationBarTitleText": "Venue Detail",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/activity-detail/activity-detail",
       "style": {
-        "navigationBarTitleText": "Activity Detail"
+        "navigationBarTitleText": "Activity Detail",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/edit-profile/edit-profile",
       "style": {
-        "navigationBarTitleText": "Edit Profile"
+        "navigationBarTitleText": "Edit Profile",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/beginner-guide/beginner-guide",
       "style": {
-        "navigationBarTitleText": "Beginner Guide"
+        "navigationBarTitleText": "Beginner Guide",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/chat/chat",
       "style": {
-        "navigationBarTitleText": "Chat"
+        "navigationBarTitleText": "Chat",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/smart-partner/smart-partner",
       "style": {
-        "navigationBarTitleText": "Smart Partner"
+        "navigationBarTitleText": "Smart Partner",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/climb-records/climb-records",
       "style": {
-        "navigationBarTitleText": "Climb Records"
+        "navigationBarTitleText": "Climb Records",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/market/market",
       "style": {
-        "navigationBarTitleText": "Market"
+        "navigationBarTitleText": "Market",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/market-item-detail/market-item-detail",
       "style": {
-        "navigationBarTitleText": "Item Detail"
+        "navigationBarTitleText": "Item Detail",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/market-item-create/market-item-create",
       "style": {
-        "navigationBarTitleText": "Sell Item"
+        "navigationBarTitleText": "Sell Item",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/event-list/event-list",
       "style": {
-        "navigationBarTitleText": "Events"
+        "navigationBarTitleText": "Events",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/event-create/event-create",
       "style": {
-        "navigationBarTitleText": "Create Event"
+        "navigationBarTitleText": "Create Event",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/climb-request/climb-request",
       "style": {
-        "navigationBarTitleText": "Climb Request"
+        "navigationBarTitleText": "Climb Request",
+        "navigationStyle": "custom"
       }
     }
   ],
@@ -156,7 +179,8 @@
     "navigationBarBackgroundColor": "#7eb662",
     "navigationBarTitleText": "ClimbConnect",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f9f5"
+    "backgroundColor": "#f5f9f5",
+    "navigationStyle": "custom"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

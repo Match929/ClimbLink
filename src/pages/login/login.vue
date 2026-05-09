@@ -18,15 +18,33 @@
         </view>
 
         <view class="form-inputs">
+          <!-- Login method toggle -->
+          <view class="login-method-toggle">
+            <view 
+              class="toggle-btn"
+              :class="{ active: loginMethod === 'email' }"
+              @click="loginMethod = 'email'"
+            >
+              <text>Email</text>
+            </view>
+            <view 
+              class="toggle-btn"
+              :class="{ active: loginMethod === 'username' }"
+              @click="loginMethod = 'username'"
+            >
+              <text>Username</text>
+            </view>
+          </view>
+          
           <view class="input-group">
-            <text class="input-label">Email</text>
+            <text class="input-label">{{ loginMethod === 'email' ? 'Email' : 'Username' }}</text>
             <view class="input-wrapper">
-              <text class="input-icon">📧</text>
+              <text class="input-icon">{{ loginMethod === 'email' ? '📧' : '👤' }}</text>
               <input 
                 class="input-field"
-                type="text"
-                v-model="email"
-                placeholder="Enter your email"
+                :type="loginMethod === 'email' ? 'text' : 'text'"
+                v-model="loginIdentifier"
+                :placeholder="loginMethod === 'email' ? 'Enter your email' : 'Enter your username'"
               />
             </view>
           </view>
@@ -52,7 +70,7 @@
           </view>
 
           <view class="submit-btn" @click="handleLogin" :class="{ disabled: isLoading }">
-            <text class="submit-text">{{ isLoading ? '登录中...' : 'Sign In' }}</text>
+            <text class="submit-text">{{ isLoading ? 'Signing in...' : 'Sign In' }}</text>
           </view>
         </view>
 
@@ -88,14 +106,15 @@ import { ref } from 'vue'
 import cloud from '@/utils/cloud.js'
 
 const showPassword = ref(false)
-const email = ref('')
+const loginMethod = ref('email')
+const loginIdentifier = ref('')
 const password = ref('')
 const isLoading = ref(false)
 
 const handleLogin = async () => {
-  if (!email.value) {
+  if (!loginIdentifier.value) {
     uni.showToast({
-      title: '请输入邮箱',
+      title: loginMethod.value === 'email' ? 'Please enter email' : 'Please enter username',
       icon: 'none'
     })
     return
@@ -103,22 +122,22 @@ const handleLogin = async () => {
   
   if (!password.value) {
     uni.showToast({
-      title: '请输入密码',
+      title: 'Please enter password',
       icon: 'none'
     })
     return
   }
   
   isLoading.value = true
-  uni.showLoading({ title: '登录中...' })
+  uni.showLoading({ title: 'Signing in...' })
   
   try {
-    const result = await cloud.user.login(email.value, password.value)
+    const result = await cloud.user.login(loginIdentifier.value, password.value)
     
     if (result.success) {
       uni.hideLoading()
       uni.showToast({
-        title: '登录成功',
+        title: 'Login successful',
         icon: 'success'
       })
       setTimeout(() => {
@@ -129,14 +148,14 @@ const handleLogin = async () => {
     } else {
       uni.hideLoading()
       uni.showToast({
-        title: result.message || '登录失败',
+        title: result.message || 'Login failed',
         icon: 'none'
       })
     }
   } catch (error) {
     uni.hideLoading()
     uni.showToast({
-      title: '登录失败，请重试',
+      title: 'Login failed, please try again',
       icon: 'none'
     })
     console.error(error)
@@ -241,6 +260,36 @@ const navigateToRegister = () => {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.login-method-toggle {
+  display: flex;
+  gap: 8px;
+  background: #f3f4f6;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.toggle-btn {
+  flex: 1;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: #7eb662;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .input-group {

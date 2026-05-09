@@ -54,8 +54,7 @@
                 :class="{ active: formData.level === level.value }"
                 @click="formData.level = level.value"
               >
-                <text class="level-value">{{ level.value }}</text>
-                <text class="level-label">{{ level.label }}</text>
+                <text class="level-text">{{ level.value }}</text>
               </view>
             </view>
           </view>
@@ -101,7 +100,7 @@
           </view>
 
           <view class="submit-btn" @click="handleRegister" :class="{ disabled: isLoading }">
-            <text class="submit-text">{{ isLoading ? '注册中...' : 'Create Account' }}</text>
+            <text class="submit-text">{{ isLoading ? 'Creating account...' : 'Create Account' }}</text>
           </view>
         </view>
 
@@ -148,16 +147,18 @@ const formData = ref({
 })
 
 const levels = [
-  { value: 'V0-V2', label: 'Beginner' },
-  { value: 'V3-V5', label: 'Intermediate' },
-  { value: 'V6-V8', label: 'Advanced' },
-  { value: 'V9+', label: 'Expert' }
+  { value: 'V0', label: 'V0' },
+  { value: 'V1-V2', label: 'V1-V2' },
+  { value: 'V3-V4', label: 'V3-V4' },
+  { value: 'V5-V6', label: 'V5-V6' },
+  { value: 'V7-V8', label: 'V7-V8' },
+  { value: 'V9+', label: 'V9+' }
 ]
 
 const handleRegister = async () => {
   if (!formData.value.name) {
     uni.showToast({
-      title: '请输入姓名',
+      title: 'Please enter name',
       icon: 'none'
     })
     return
@@ -165,7 +166,7 @@ const handleRegister = async () => {
   
   if (!formData.value.email) {
     uni.showToast({
-      title: '请输入邮箱',
+      title: 'Please enter email',
       icon: 'none'
     })
     return
@@ -173,7 +174,7 @@ const handleRegister = async () => {
   
   if (!formData.value.level) {
     uni.showToast({
-      title: '请选择攀岩等级',
+      title: 'Please select climbing level',
       icon: 'none'
     })
     return
@@ -181,7 +182,7 @@ const handleRegister = async () => {
   
   if (!formData.value.password) {
     uni.showToast({
-      title: '请输入密码',
+      title: 'Please enter password',
       icon: 'none'
     })
     return
@@ -189,7 +190,7 @@ const handleRegister = async () => {
   
   if (formData.value.password !== formData.value.confirmPassword) {
     uni.showToast({
-      title: '两次密码输入不一致',
+      title: 'Passwords do not match',
       icon: 'none'
     })
     return
@@ -197,14 +198,14 @@ const handleRegister = async () => {
   
   if (!formData.value.agreeTerms) {
     uni.showToast({
-      title: '请同意服务条款',
+      title: 'Please agree to terms',
       icon: 'none'
     })
     return
   }
   
   isLoading.value = true
-  uni.showLoading({ title: '注册中...' })
+  uni.showLoading({ title: 'Creating account...' })
   
   try {
     const result = await cloud.user.register(formData.value)
@@ -212,7 +213,7 @@ const handleRegister = async () => {
     if (result.success) {
       uni.hideLoading()
       uni.showToast({
-        title: '注册成功',
+        title: 'Registration successful',
         icon: 'success'
       })
       setTimeout(() => {
@@ -223,14 +224,14 @@ const handleRegister = async () => {
     } else {
       uni.hideLoading()
       uni.showToast({
-        title: result.message || '注册失败',
+        title: result.message || 'Registration failed',
         icon: 'none'
       })
     }
   } catch (error) {
     uni.hideLoading()
     uni.showToast({
-      title: '注册失败，请重试',
+      title: 'Registration failed, please try again',
       icon: 'none'
     })
     console.error(error)
@@ -305,6 +306,7 @@ const navigateToLogin = () => {
   border-top-right-radius: 32px;
   padding: 32px 24px 40px;
   box-shadow: 0 -25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
 }
 
 .form-content {
@@ -392,7 +394,7 @@ const navigateToLogin = () => {
 
 .level-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
@@ -405,21 +407,13 @@ const navigateToLogin = () => {
 
 .level-item.active {
   border-color: #7eb662;
-  background: #f0f7ec;
+  background: #d4e7c5;
 }
 
-.level-value {
-  display: block;
+.level-text {
   font-size: 14px;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 4px;
-}
-
-.level-label {
-  display: block;
-  font-size: 12px;
-  color: #6b7280;
 }
 
 .terms-group {

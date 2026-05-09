@@ -3,6 +3,9 @@
     <!-- Header -->
     <view class="header">
       <view class="header-top">
+        <view class="back-btn" @click="goBack">
+          <text class="back-icon">←</text>
+        </view>
         <view class="header-text">
           <text class="header-title">Smart Partner</text>
           <text class="header-subtitle">Find your perfect climbing match</text>
@@ -12,7 +15,7 @@
         </view>
       </view>
       
-      <!-- 场馆信息 -->
+      <!-- Venue info -->
       <view v-if="currentVenue" class="venue-indicator">
         <text class="venue-icon">📍</text>
         <text class="venue-name">{{ currentVenue.name }}</text>
@@ -127,7 +130,7 @@
             <view class="user-info-row">
               <view class="user-left">
                 <image 
-                  :src="getUserAvatar(request)" 
+                  :src="request.user?.avatarUrl" 
                   class="user-avatar"
                   mode="aspectFill"
                 />
@@ -306,11 +309,16 @@ const loading = ref(false)
 const smartMatchingLoading = ref(false)
 const matchedRequests = ref([])
 
-// 场馆相关
+// Go back
+const goBack = () => {
+  uni.navigateBack()
+}
+
+// Venue related
 const currentVenueId = ref('')
 const currentVenue = ref(null)
 
-// 时间选择器相关
+// Time picker related
 const showTimePicker = ref(false)
 const selectedTimeType = ref('any') // 'any', 'quick', 'custom'
 const selectedQuickTime = ref('morning')
@@ -355,7 +363,7 @@ const availableTags = [
 
 const tags = ['bouldering', 'ropes', 'lead', 'speed', 'beginner', 'social', 'training', 'project', 'relaxed', 'intense']
 
-// 标签显示名称映射
+// Tag display name mapping
 const tagNames = {
   'bouldering': 'Bouldering',
   'ropes': 'Top Rope',
@@ -369,12 +377,7 @@ const tagNames = {
   'intense': 'Intense Session'
 }
 
-// 获取用户头像 URL（使用通用工具函数）
-const getUserAvatar = (request) => {
-  return cloud.getAvatarUrl(request.user?.avatar, request.user_id)
-}
-
-// 获取时间显示文本
+// Get time display text
 const getTimeDisplayText = () => {
   const sel = savedTimeSelection.value
   if (sel.type === 'any') {
@@ -387,33 +390,33 @@ const getTimeDisplayText = () => {
   }
 }
 
-// 选择任意时间
+// Select any time
 const selectAnyTime = () => {
   selectedTimeType.value = 'any'
 }
 
-// 选择快速时间
+// Select quick time
 const selectQuickTime = (value) => {
   selectedTimeType.value = 'quick'
   selectedQuickTime.value = value
 }
 
-// 选择自定义时间
+// Select custom time
 const selectCustomTime = () => {
   selectedTimeType.value = 'custom'
 }
 
-// 开始时间变化
+// Start time change
 const onStartTimeChange = (e) => {
   customStartTime.value = e.detail.value
 }
 
-// 结束时间变化
+// End time change
 const onEndTimeChange = (e) => {
   customEndTime.value = e.detail.value
 }
 
-// 确认时间选择
+// Confirm time selection
 const confirmTimeSelection = () => {
   savedTimeSelection.value = {
     type: selectedTimeType.value,
@@ -422,13 +425,13 @@ const confirmTimeSelection = () => {
     endTime: customEndTime.value
   }
   showTimePicker.value = false
-  // 触发重新计算匹配
+  // Trigger recalculate matches
   if (showSmartMatch.value) {
     computeSmartMatch()
   }
 }
 
-// 检查时间是否匹配
+// Check if time matches
 const matchesTime = (request, timeSelection) => {
   if (!timeSelection || timeSelection.type === 'any') return true
   
@@ -446,11 +449,11 @@ const matchesTime = (request, timeSelection) => {
   return true
 }
 
-// 解析时间为分钟
+// Parse time to minutes
 const parseTimeToMinutes = (timeStr) => {
   if (!timeStr) return null
   
-  // 尝试匹配 HH:MM 格式
+  // Try to match HH:MM format
   const match = timeStr.match(/(\d{1,2}):(\d{2})/)
   if (match) {
     return parseInt(match[1]) * 60 + parseInt(match[2])
@@ -459,7 +462,7 @@ const parseTimeToMinutes = (timeStr) => {
   return null
 }
 
-// 快速时间匹配
+// Quick time match
 const matchesQuickTime = (minutes, quickType) => {
   if (minutes === null) return false
   
@@ -477,26 +480,26 @@ const matchesQuickTime = (minutes, quickType) => {
   return false
 }
 
-// 自定义时间匹配
+// Custom time match
 const matchesCustomTime = (minutes, startMinutes, endMinutes) => {
   if (minutes === null) return false
   
   if (startMinutes <= endMinutes) {
-    // 不跨天
+    // Not cross day
     return minutes >= startMinutes && minutes <= endMinutes
   } else {
-    // 跨天
+    // Cross day
     return minutes >= startMinutes || minutes <= endMinutes
   }
 }
 
-// 获取用于智能匹配的时间信息
+// Get time info for smart match
 const getTimeMatchInfo = () => {
   const sel = savedTimeSelection.value
   if (sel.type === 'any') {
     return { any: true }
   } else if (sel.type === 'quick') {
-    // 转换为时间范围
+    // Convert to time range
     switch (sel.quickTime) {
       case 'morning':
         return { any: false, start: '06:00', end: '12:00' }
@@ -513,49 +516,55 @@ const getTimeMatchInfo = () => {
   return { any: true }
 }
 
-// 加载场馆信息
+// Load venue info
 const loadVenueInfo = async (venueId) => {
   try {
-    console.log('加载场馆信息，ID:', venueId)
+    console.log('Loading venue info, ID:', venueId)
     const venue = await cloud.venue.getVenueById(venueId)
     if (venue) {
-      // 确保有 id 字段
+      // Ensure we have an id field
       currentVenue.value = {
         ...venue,
         id: venue._id || venue.id
       }
-      console.log('加载到的场馆:', currentVenue.value)
+      console.log('Loaded venue:', currentVenue.value)
       
-      // 如果场馆有标签，自动选择这些标签
+      // Auto-select tags if venue has tags
       if (venue.tags && venue.tags.length > 0) {
-        // 只选择我们支持的标签
+        // Only select tags we support
         const supportedTags = venue.tags.filter(tag => 
           availableTags.some(availableTag => availableTag.id === tag)
         )
         selectedTags.value = supportedTags
       }
     } else {
-      console.warn('未找到场馆信息，ID:', venueId)
+      console.warn('Venue info not found, ID:', venueId)
     }
   } catch (err) {
-    console.error('加载场馆信息失败:', err)
+    console.error('Failed to load venue info:', err)
   }
 }
 
-// 加载约爬请求列表
+// Load climb requests list
 const loadClimbRequests = async () => {
   loading.value = true
   try {
     const requests = await cloud.climb.getClimbRequests()
+    // Process all avatar URLs
+    for (const request of requests) {
+      if (request.user) {
+        request.user.avatarUrl = await cloud.getAvatarUrl(request.user.avatar, request.user_id)
+      }
+    }
     climbRequests.value = requests
   } catch (err) {
-    console.error('加载约爬请求失败:', err)
+    console.error('Failed to load climb requests:', err)
   } finally {
     loading.value = false
   }
 }
 
-// 计算智能匹配
+// Compute smart matches
 const computeSmartMatch = async () => {
   if (!showSmartMatch.value) {
     matchedRequests.value = []
@@ -566,10 +575,10 @@ const computeSmartMatch = async () => {
   try {
     const timeInfo = getTimeMatchInfo()
     const anyTime = timeInfo.any
-    // 如果选择了 "All Levels"，则使用用户自己的等级，否则使用选择的等级
+    // If "All Levels" selected, use user's own level, otherwise use selected level
     const overrideLevel = selectedLevel.value === 'all' ? null : selectedLevel.value
     
-    // 构建包含时间范围和标签的用户请求
+    // Build user request with time range and tags
     const myRequest = {
       climb_time: timeInfo.any ? null : `${timeInfo.start} - ${timeInfo.end}`,
       tags: selectedTags.value.length > 0 ? selectedTags.value : null
@@ -583,14 +592,39 @@ const computeSmartMatch = async () => {
     )
     matchedRequests.value = results
   } catch (err) {
-    console.error('智能匹配失败:', err)
+    console.error('Smart match failed:', err)
   } finally {
     smartMatchingLoading.value = false
   }
 }
 
-// 页面加载时调用
+// Check if user is logged in
+const checkLogin = () => {
+  const userId = localStorage.getItem('userId')
+  if (!userId) {
+    uni.showModal({
+      title: 'Notice',
+      content: 'Please login first to use Smart Partner',
+      showCancel: false,
+      confirmText: 'OK',
+      success: () => {
+        uni.navigateTo({
+          url: '/pages/login/login'
+        })
+      }
+    })
+    return false
+  }
+  return true
+}
+
+// Called when page loads
 onMounted(() => {
+  // Check login first
+  if (!checkLogin()) {
+    return
+  }
+  
   let venueId = null
   
   try {
@@ -602,10 +636,10 @@ onMounted(() => {
       }
     }
   } catch (err) {
-    console.error('获取参数失败:', err)
+    console.error('Failed to get parameters:', err)
   }
   
-  console.log('Smart Partner 获取到的 venueId:', venueId)
+  console.log('Smart Partner - venueId:', venueId)
   
   if (venueId) {
     currentVenueId.value = venueId
@@ -615,28 +649,28 @@ onMounted(() => {
   loadClimbRequests()
 })
 
-// 监听智能匹配开关
+// Watch smart match toggle
 watch(showSmartMatch, (newVal) => {
   if (newVal && climbRequests.value.length > 0) {
     computeSmartMatch()
   }
 })
 
-// 监听等级筛选变化
+// Watch level filter change
 watch(selectedLevel, () => {
   if (showSmartMatch.value) {
     computeSmartMatch()
   }
 })
 
-// 监听标签筛选变化
+// Watch tag filter change
 watch(selectedTags, () => {
   if (showSmartMatch.value) {
     computeSmartMatch()
   }
 }, { deep: true })
 
-// 监听约爬请求列表变化
+// Watch climb requests list change
 watch(climbRequests, () => {
   if (showSmartMatch.value) {
     computeSmartMatch()
@@ -647,13 +681,13 @@ watch(climbRequests, () => {
 const filteredRequests = computed(() => {
   let requests = climbRequests.value
   
-  // 如果开启了智能匹配，使用匹配后的列表
+  // If smart match enabled, use matched list
   if (showSmartMatch.value) {
     requests = matchedRequests.value
   }
   
   return requests.filter(request => {
-    // 在智能匹配模式下，不通过 level、time、tag 筛选，而是通过智能匹配计算匹配度
+    // In smart match mode, don't filter by level, time, tag, use smart match score instead
     let matchesLevel
     if (showSmartMatch.value) {
       matchesLevel = true
@@ -677,7 +711,7 @@ const filteredRequests = computed(() => {
 // Sort by match score if smart match is enabled
 const displayRequests = computed(() => {
   if (showSmartMatch.value) {
-    // 在智能匹配模式下，使用已经排序好的列表
+    // In smart match mode, use already sorted list
     return filteredRequests.value
   }
   return filteredRequests.value
@@ -689,7 +723,7 @@ const onSearchInput = (e) => {
 
 const selectLevel = (level) => {
   selectedLevel.value = level
-  // 直接触发智能匹配计算
+  // Trigger smart match calculation
   if (showSmartMatch.value) {
     computeSmartMatch()
   }
@@ -702,7 +736,7 @@ const toggleTag = (tag) => {
   } else {
     selectedTags.value.push(tag)
   }
-  // 直接触发智能匹配计算
+  // Trigger smart match calculation
   if (showSmartMatch.value) {
     computeSmartMatch()
   }
@@ -712,42 +746,43 @@ const toggleSmartMatch = () => {
   showSmartMatch.value = !showSmartMatch.value
 }
 
-const goBack = () => {
-  uni.navigateBack()
-}
-
 const handleRequestToJoin = async (request) => {
+  // Check login
+  if (!checkLogin()) {
+    return
+  }
+
   uni.showLoading({
-    title: '申请中...'
+    title: 'Applying...'
   })
 
-  // 1. 先申请加入
+  // 1. First apply to join
   const applyResult = await cloud.climb.applyJoinRequest(request._id)
 
   if (!applyResult || !applyResult.success) {
     uni.hideLoading()
     uni.showToast({
-      title: applyResult?.message || '申请失败，请重试',
+      title: applyResult?.message || 'Failed to apply, please try again',
       icon: 'none'
     })
     return
   }
 
-  // 2. 获取或创建会话
+  // 2. Get or create conversation
   const conversation = await cloud.chat.getOrCreateSingleConversation(request.user_id)
 
   uni.hideLoading()
 
   if (!conversation) {
     uni.showToast({
-      title: '会话创建失败',
+      title: 'Failed to create conversation',
       icon: 'none'
     })
     return
   }
 
-  // 3. 发送卡片式的申请消息
-  const messageContent = `我想申请加入你的约爬请求！`
+  // 3. Send card-style request message
+  const messageContent = `I want to apply to join your climb request!`
   const extra = {
     type: 'climb_request_card',
     requestId: request._id,
@@ -760,7 +795,7 @@ const handleRequestToJoin = async (request) => {
   }
   await cloud.chat.sendMessage(conversation._id, messageContent, 'climb_request', extra)
 
-  // 4. 跳转到聊天页面
+  // 4. Navigate to chat page
   uni.navigateTo({
     url: `/pages/chat/chat?conversationId=${conversation._id}&otherUserId=${request.user_id}`
   })
@@ -788,9 +823,28 @@ const handleRequestToJoin = async (request) => {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  gap: 12px;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.back-icon {
+  font-size: 24px;
+  color: white;
+  font-weight: bold;
 }
 
 .header-text {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;

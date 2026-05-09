@@ -122,8 +122,8 @@ const publishOptions = [
 ];
 
 const togglePublishModal = () => {
-  // 检查是否登录
-  const userId = uni.getStorageSync('userId');
+   // Check if logged in
+  const userId = localStorage.getItem('userId');
   if (!userId) {
     uni.showModal({
       title: 'Login Required',
@@ -149,8 +149,8 @@ const closePublishModal = () => {
 };
 
 const selectOption = (option) => {
-  // 检查是否登录
-  const userId = uni.getStorageSync('userId');
+  // Check if logged in
+  const userId = localStorage.getItem('userId');
   if (!userId) {
     uni.showModal({
       title: 'Login Required',

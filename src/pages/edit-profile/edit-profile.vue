@@ -18,6 +18,14 @@
         <view class="change-avatar-btn" @click="changeAvatar">
           <text class="change-avatar-text">Change Photo</text>
         </view>
+        <!-- Web 环境隐藏的文件输入 -->
+        <input 
+          type="file" 
+          ref="fileInput" 
+          accept="image/*" 
+          style="display: none" 
+          @change="handleFileSelect" 
+        />
       </view>
       
       <!-- 表单区域 -->
@@ -83,6 +91,8 @@
 import { ref, onMounted } from 'vue'
 import cloud from '@/utils/cloud.js'
 
+const fileInput = ref(null)
+
 const profile = ref({
   nickname: '',
   avatar: '',
@@ -106,10 +116,11 @@ const loadUserData = async () => {
   try {
     const userData = await cloud.user.getCurrentUser()
     if (userData) {
-      const userId = uni.getStorageSync('userId')
+      const userId = localStorage.getItem('userId')
+      const avatarUrl = await cloud.getAvatarUrl(userData.avatar, userId)
       profile.value = {
         nickname: userData.name || '',
-        avatar: cloud.getAvatarUrl(userData.avatar, userId),
+        avatar: avatarUrl,
         level: userData.climbing_level || 'V0',
         labels: userData.labels || [],
         bio: userData.bio || '',
@@ -117,7 +128,7 @@ const loadUserData = async () => {
       }
     }
   } catch (err) {
-    console.error('加载用户数据失败:', err)
+    console.error('Failed to load user data:', err)
   }
 }
 
@@ -135,42 +146,92 @@ const toggleLabel = (label) => {
 }
 
 const changeAvatar = () => {
-  uni.chooseImage({
-    count: 1,
-    sourceType: ['album', 'camera'],
-    success: async (res) => {
-      const tempFilePath = res.tempFilePaths[0];
-      
-      // 先显示临时图片给用户预览
-      profile.value.avatar = tempFilePath;
-      
-      // 立即上传到云存储
-      try {
-        uni.showLoading({ title: '上传中...' });
+  // Check if it's Web environment
+  if (typeof uni !== 'undefined' && uni.chooseImage) {
+    // Mini program environment
+    uni.chooseImage({
+      count: 1,
+      sourceType: ['album', 'camera'],
+      success: async (res) => {
+        const tempFilePath = res.tempFilePaths[0];
         
-        const uploadResult = await cloud.storage.uploadAvatar(tempFilePath);
+        // Show temporary image for preview first
+        profile.value.avatar = tempFilePath;
         
-        if (uploadResult && uploadResult.success) {
-          // 上传成功，更新为 fileID
-          profile.value.avatar = uploadResult.fileID;
-          console.log('头像上传成功:', uploadResult.fileID);
-        } else {
-          // 上传失败，保留临时图片并提示
-          console.warn('头像上传失败，保留临时图片');
+        // Upload to cloud storage immediately
+        try {
+          uni.showLoading({ title: 'Uploading...' });
+          
+          const uploadResult = await cloud.storage.uploadAvatar(tempFilePath);
+          
+          if (uploadResult && uploadResult.success) {
+            // Upload successful, update to fileID
+            profile.value.avatar = uploadResult.fileID;
+            console.log('Avatar uploaded successfully:', uploadResult.fileID);
+          } else {
+            // Upload failed, keep temporary image and warn
+            console.warn('Avatar upload failed, keeping temporary image');
+          }
+        } catch (err) {
+          console.error('Avatar upload error:', err);
+          // Upload failure doesn't affect preview
+        } finally {
+          uni.hideLoading();
         }
-      } catch (err) {
-        console.error('头像上传异常:', err);
-        // 上传失败不影响预览
-      } finally {
-        uni.hideLoading();
       }
+    })
+  } else {
+    // Web environment, trigger hidden file input
+    if (fileInput.value) {
+      fileInput.value.click();
     }
-  })
+  }
+}
+
+const handleFileSelect = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  console.log('Selected file:', file);
+  
+  // Show temporary image for preview first
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    profile.value.avatar = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  
+  // Upload to cloud storage immediately
+  try {
+    if (typeof uni !== 'undefined') {
+      uni.showLoading({ title: 'Uploading...' });
+    }
+    
+    const uploadResult = await cloud.storage.uploadAvatar(file);
+    
+    if (uploadResult && uploadResult.success) {
+      // Upload successful, update to fileID
+      profile.value.avatar = uploadResult.fileID;
+      console.log('Avatar uploaded successfully:', uploadResult.fileID);
+    } else {
+      // Upload failed, keep temporary image and warn
+      console.warn('Avatar upload failed, keeping temporary image');
+    }
+  } catch (err) {
+    console.error('Avatar upload error:', err);
+    // Upload failure doesn't affect preview
+  } finally {
+    if (typeof uni !== 'undefined') {
+      uni.hideLoading();
+    }
+    // Clear input to allow selecting same file again
+    event.target.value = '';
+  }
 }
 
 const handleSave = async () => {
   if (!profile.value.nickname) {
-    uni.showToast({ title: '请输入昵称', icon: 'none' })
+    uni.showToast({ title: 'Please enter nickname', icon: 'none' })
     return
   }
 
@@ -178,7 +239,7 @@ const handleSave = async () => {
   uni.showLoading({ title: 'Saving...' })
 
   try {
-    const userId = uni.getStorageSync('userId')
+    const userId = localStorage.getItem('userId')
     const updateData = {
       name: profile.value.nickname,
       avatar: profile.value.avatar,
@@ -192,22 +253,22 @@ const handleSave = async () => {
     loading.value = false
 
     if (result && result.success) {
-      // 更新本地缓存
-      const currentUserInfo = uni.getStorageSync('userInfo') || {}
-      uni.setStorageSync('userInfo', { ...currentUserInfo, ...updateData })
+      // Update local cache
+      const currentUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+      localStorage.setItem('userInfo', JSON.stringify({ ...currentUserInfo, ...updateData }))
       
       uni.showToast({ title: 'Saved successfully!', icon: 'success' })
       setTimeout(() => {
         uni.navigateBack()
       }, 1500)
     } else {
-      uni.showToast({ title: result?.message || '保存失败', icon: 'none' })
+      uni.showToast({ title: result?.message || 'Save failed', icon: 'none' })
     }
   } catch (err) {
-    console.error('保存失败:', err)
+    console.error('Save failed:', err)
     uni.hideLoading()
     loading.value = false
-    uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+    uni.showToast({ title: 'Save failed, please try again', icon: 'none' })
   }
 }
 

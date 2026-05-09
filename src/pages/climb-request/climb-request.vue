@@ -274,10 +274,12 @@ const today = computed(() => {
 })
 
 const levels = [
-  'V0-V2 Beginner',
-  'V3-V5 Intermediate',
-  'V6-V8 Advanced',
-  'V9+ Expert',
+  'V0',
+  'V1-V2',
+  'V3-V4',
+  'V5-V6',
+  'V7-V8',
+  'V9+'
 ]
 
 const venues = ref([])
@@ -374,14 +376,14 @@ const goBack = () => {
 const handlePublish = async () => {
   if (!selectedVenue.value || !formData.value.date || !formData.value.level) {
     uni.showToast({
-      title: '请填写必填项',
+      title: 'Please fill in required fields',
       icon: 'none'
     })
     return
   }
 
   uni.showLoading({
-    title: isEditing.value ? '更新中...' : '发布中...'
+    title: isEditing.value ? 'Updating...' : 'Publishing...'
   })
 
   const requestData = {
@@ -406,7 +408,7 @@ const handlePublish = async () => {
 
   if (result && result.success) {
     uni.showToast({
-      title: isEditing.value ? '更新成功!' : '发布成功!',
+      title: isEditing.value ? 'Updated successfully!' : 'Published successfully!',
       icon: 'success'
     })
     setTimeout(() => {
@@ -414,7 +416,7 @@ const handlePublish = async () => {
     }, 1500)
   } else {
     uni.showToast({
-      title: result?.message || (isEditing.value ? '更新失败，请重试' : '发布失败，请重试'),
+      title: result?.message || (isEditing.value ? 'Update failed, please try again' : 'Publish failed, please try again'),
       icon: 'none'
     })
   }
@@ -717,7 +719,7 @@ const toggleTag = (tagId) => {
 /* 技能水平 */
 .levels-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16rpx;
 }
 

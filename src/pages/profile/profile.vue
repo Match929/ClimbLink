@@ -234,14 +234,16 @@ const menuItems = ref([
   },
 ])
 
-// 加载用户数据
+// Load user data
 const loadUserData = async () => {
   try {
-    const userId = uni.getStorageSync('userId');
+    const userId = localStorage.getItem('userId');
+    console.log('loadUserData - userId:', userId);
+    
     if (!userId) {
-      console.log('用户未登录');
+      console.log('User not logged in');
       isLoggedIn.value = false;
-      // 重置为默认数据
+      // Reset to default data
       user.value = {
         name: "Please Login",
         avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=guest",
@@ -261,25 +263,29 @@ const loadUserData = async () => {
 
     isLoggedIn.value = true;
 
-    // 获取用户基本信息
+    // Get user basic info
     const userData = await cloud.user.getCurrentUser();
+    console.log('loadUserData - userData:', userData);
+    
     if (userData) {
       user.value.name = userData.name || 'Climbing Enthusiast';
       user.value.level = userData.climbing_level || 'V1';
       user.value.bio = userData.bio || 'Love climbing, enjoy challenges 🧗‍♂️';
-      user.value.avatar = cloud.getAvatarUrl(userData.avatar, userId);
+      user.value.avatar = await cloud.getAvatarUrl(userData.avatar, userId);
       user.value.labels = userData.labels || [];
       
-      // 计算经验年数（根据创建账号的时间）
+      // Calculate years of experience (based on account creation time)
       if (userData.created_at) {
         const createdDate = new Date(userData.created_at);
         const now = new Date();
         const diffYears = (now - createdDate) / (1000 * 60 * 60 * 24 * 365);
         user.value.experience = diffYears.toFixed(1) + ' years';
       }
+    } else {
+      console.log('Failed to get user data');
     }
 
-    // 获取用户统计数据
+    // Get user statistics
     const stats = await cloud.user.getUserStats(userId);
     if (stats) {
       user.value.stats = {
@@ -290,11 +296,11 @@ const loadUserData = async () => {
       };
     }
   } catch (err) {
-    console.error('加载用户数据失败:', err);
+    console.error('Failed to load user data:', err);
   }
 };
 
-// 跳转到登录页面
+// Navigate to login page
 const goToLogin = () => {
   uni.navigateTo({
     url: '/pages/login/login'
@@ -336,8 +342,8 @@ const handleLogout = () => {
     success: (res) => {
       if (res.confirm) {
         // 清除登录状态
-        uni.removeStorageSync('userId');
-        uni.removeStorageSync('userInfo');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userInfo');
         // 刷新页面
         loadUserData();
         uni.showToast({

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "Beginner Guide",
+  "usingComponents": {
+    "ai-chat-widget": "../../components/ai-chat-widget/ai-chat-widget"
+  }
+}

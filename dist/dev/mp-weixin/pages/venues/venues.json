@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "Venues",
+  "navigationBarBackgroundColor": "#7eb662",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "custom-tab-bar": "../../components/custom-tab-bar/custom-tab-bar"
+  }
+}

@@ -1,0 +1,600 @@
+
+.container.data-v-780cb2e5 {
+  min-height: 100vh;
+  background-color: #f5f9f5;
+  padding-bottom: 160rpx;
+}
+.loading-container.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40rpx;
+}
+.loading-text.data-v-780cb2e5 {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 图片区域 */
+.image-section.data-v-780cb2e5 {
+  position: relative;
+  width: 100%;
+  height: 500rpx;
+}
+.venue-image.data-v-780cb2e5 {
+  width: 100%;
+  height: 100%;
+}
+.back-btn.data-v-780cb2e5 {
+  position: absolute;
+  top: 40rpx;
+  left: 30rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.back-icon.data-v-780cb2e5 {
+  font-size: 36rpx;
+  color: #333;
+}
+.action-btns.data-v-780cb2e5 {
+  position: absolute;
+  top: 40rpx;
+  right: 30rpx;
+  display: flex;
+  gap: 20rpx;
+  z-index: 10;
+}
+.action-btn.data-v-780cb2e5 {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.action-icon.data-v-780cb2e5 {
+  font-size: 36rpx;
+}
+.crowd-badge.data-v-780cb2e5 {
+  position: absolute;
+  bottom: 30rpx;
+  right: 30rpx;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10rpx 24rpx;
+  border-radius: 30rpx;
+  z-index: 10;
+}
+.crowd-text.data-v-780cb2e5 {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+/* 信息区域 */
+.info-section.data-v-780cb2e5 {
+  background-color: #ffffff;
+  padding: 40rpx 30rpx;
+  margin-top: -30rpx;
+  border-radius: 30rpx 30rpx 0 0;
+  position: relative;
+  z-index: 5;
+}
+.venue-header.data-v-780cb2e5 {
+  margin-bottom: 30rpx;
+}
+.venue-name.data-v-780cb2e5 {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.venue-meta.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.rating.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.star.data-v-780cb2e5 {
+  font-size: 28rpx;
+}
+.rating-value.data-v-780cb2e5 {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+.rating-count.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #999;
+}
+.separator.data-v-780cb2e5 {
+  color: #ddd;
+  font-size: 24rpx;
+}
+.distance.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 标签 */
+.tags.data-v-780cb2e5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 30rpx;
+}
+.tag.data-v-780cb2e5 {
+  padding: 10rpx 24rpx;
+  background-color: #d4e7c5;
+  color: #5a8a3f;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}
+
+/* 联系方式 */
+.contact-info.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.contact-item.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.contact-icon.data-v-780cb2e5 {
+  font-size: 32rpx;
+  color: #999;
+}
+.contact-text.data-v-780cb2e5 {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+}
+.nav-btn.data-v-780cb2e5 {
+  padding: 12rpx 24rpx;
+  border: 2rpx solid #7eb662;
+  border-radius: 20rpx;
+}
+.nav-text.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #7eb662;
+  font-weight: 500;
+}
+
+/* 标签页导航 */
+.tabs-nav.data-v-780cb2e5 {
+  display: flex;
+  background-color: #ffffff;
+  border-bottom: 2rpx solid #eee;
+  margin-top: 20rpx;
+}
+.tab-item.data-v-780cb2e5 {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  position: relative;
+}
+.tab-text.data-v-780cb2e5 {
+  font-size: 28rpx;
+  color: #666;
+}
+.tab-item.active .tab-text.data-v-780cb2e5 {
+  color: #7eb662;
+  font-weight: 500;
+}
+.tab-indicator.data-v-780cb2e5 {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 6rpx;
+  background-color: #7eb662;
+  border-radius: 6rpx;
+}
+
+/* 标签页内容 */
+.tab-content.data-v-780cb2e5 {
+  background-color: #ffffff;
+  padding: 30rpx;
+}
+
+/* 价格 */
+.price-section.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.price-item.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  background-color: #f8faf8;
+  border-radius: 20rpx;
+}
+.price-info.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.price-type.data-v-780cb2e5 {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+.price-desc.data-v-780cb2e5 {
+  font-size: 22rpx;
+  color: #999;
+}
+.price-value.data-v-780cb2e5 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #7eb662;
+}
+
+/* 设施 */
+.facility-section.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+.section-header.data-v-780cb2e5 {
+  margin-bottom: 20rpx;
+}
+.section-title.data-v-780cb2e5 {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+  display: block;
+}
+.section-subtitle.data-v-780cb2e5 {
+  font-size: 22rpx;
+  color: #999;
+  margin-left: 16rpx;
+}
+.difficulty-list.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.difficulty-item.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.difficulty-top.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.difficulty-badge.data-v-780cb2e5 {
+  padding: 8rpx 20rpx;
+  background-color: #7eb662;
+  color: #ffffff;
+  border-radius: 30rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+.difficulty-count.data-v-780cb2e5 {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #333;
+}
+.difficulty-bar.data-v-780cb2e5 {
+  width: 100%;
+  height: 20rpx;
+  background-color: #eee;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+.difficulty-fill.data-v-780cb2e5 {
+  height: 100%;
+  background: linear-gradient(to right, #7eb662, #6a9b54);
+  border-radius: 20rpx;
+  transition: width 0.3s;
+}
+.divider.data-v-780cb2e5 {
+  height: 2rpx;
+  background-color: #eee;
+  margin: 10rpx 0;
+}
+.difficulty-range.data-v-780cb2e5 {
+  font-size: 26rpx;
+  color: #666;
+}
+.area-grid.data-v-780cb2e5 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+}
+.area-item.data-v-780cb2e5 {
+  padding: 24rpx;
+  background-color: #f8faf8;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.area-label.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #999;
+}
+.area-value.data-v-780cb2e5 {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #333;
+}
+.equipment-tags.data-v-780cb2e5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.equipment-tag.data-v-780cb2e5 {
+  padding: 12rpx 28rpx;
+  background-color: #d4e7c5;
+  color: #5a8a3f;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}
+.amenities-list.data-v-780cb2e5 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+.amenity-item.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.amenity-check.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #7eb662;
+}
+.amenity-text.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 活动 */
+.activity-section.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+.activity-card.data-v-780cb2e5 {
+  padding: 30rpx;
+  border: 2rpx solid #eee;
+  border-radius: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.activity-title.data-v-780cb2e5 {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+.activity-info.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.activity-detail.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #666;
+}
+.activity-spots.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #ff6b35;
+}
+.activity-join-btn.data-v-780cb2e5 {
+  width: 100%;
+  padding: 20rpx;
+  background-color: #7eb662;
+  border-radius: 16rpx;
+  text-align: center;
+  margin-top: 10rpx;
+  box-sizing: border-box;
+}
+.activity-join-text.data-v-780cb2e5 {
+  font-size: 26rpx;
+  color: #ffffff;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+/* 评价 */
+.review-section.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+.review-overview.data-v-780cb2e5 {
+  padding: 30rpx;
+  background-color: #f8faf8;
+  border-radius: 20rpx;
+  display: flex;
+  gap: 30rpx;
+}
+.overview-left.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+.overall-rating.data-v-780cb2e5 {
+  font-size: 50rpx;
+  font-weight: bold;
+  color: #333;
+}
+.stars.data-v-780cb2e5 {
+  display: flex;
+  gap: 4rpx;
+}
+.overview-right.data-v-780cb2e5 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.review-count-text.data-v-780cb2e5 {
+  font-size: 24rpx;
+  color: #666;
+}
+.rating-bars.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.rating-bar-item.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.rating-label.data-v-780cb2e5 {
+  font-size: 22rpx;
+  color: #999;
+  width: 120rpx;
+}
+.rating-bar-bg.data-v-780cb2e5 {
+  flex: 1;
+  height: 12rpx;
+  background-color: #ddd;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+.rating-bar-fill.data-v-780cb2e5 {
+  height: 100%;
+  background-color: #7eb662;
+  border-radius: 12rpx;
+}
+.reviews-list.data-v-780cb2e5 {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+.review-item.data-v-780cb2e5 {
+  padding-bottom: 30rpx;
+  border-bottom: 2rpx solid #eee;
+}
+.review-item.data-v-780cb2e5:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.review-top.data-v-780cb2e5 {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+}
+.review-avatar.data-v-780cb2e5 {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.review-user-info.data-v-780cb2e5 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.review-user-top.data-v-780cb2e5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.review-username.data-v-780cb2e5 {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+}
+.review-date.data-v-780cb2e5 {
+  font-size: 22rpx;
+  color: #999;
+}
+.review-stars.data-v-780cb2e5 {
+  display: flex;
+  gap: 4rpx;
+}
+.mini-star.data-v-780cb2e5 {
+  font-size: 20rpx;
+}
+.review-content.data-v-780cb2e5 {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  display: block;
+  margin-bottom: 16rpx;
+}
+.review-helpful.data-v-780cb2e5 {
+  font-size: 22rpx;
+  color: #999;
+}
+.write-review-btn.data-v-780cb2e5 {
+  width: 100%;
+  padding: 24rpx;
+  border: 2rpx solid #7eb662;
+  border-radius: 16rpx;
+  text-align: center;
+  margin-top: 10rpx;
+  box-sizing: border-box;
+}
+.write-review-text.data-v-780cb2e5 {
+  font-size: 28rpx;
+  color: #7eb662;
+  font-weight: 500;
+}
+
+/* 底部操作栏 */
+.bottom-bar.data-v-780cb2e5 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border-top: 2rpx solid #eee;
+  padding: 24rpx 30rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 20rpx;
+  z-index: 100;
+}
+.bottom-btn.data-v-780cb2e5 {
+  flex: 1;
+  padding: 28rpx;
+  border-radius: 16rpx;
+  text-align: center;
+}
+.bottom-btn.secondary.data-v-780cb2e5 {
+  border: 2rpx solid #7eb662;
+}
+.bottom-btn.primary.data-v-780cb2e5 {
+  background: linear-gradient(to right, #7eb662, #6a9b54);
+}
+.bottom-btn-text.data-v-780cb2e5 {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+.bottom-btn.secondary .bottom-btn-text.data-v-780cb2e5 {
+  color: #7eb662;
+}
+.bottom-btn.primary .bottom-btn-text.data-v-780cb2e5 {
+  color: #ffffff;
+}
+.safe-area-bottom.data-v-780cb2e5 {
+  height: env(safe-area-inset-bottom);
+}

@@ -1,15 +1,16 @@
 {
-  "name": "climbing-app-uniapp",
+  "name": "climbing-app-wechat-h5",
   "version": "1.0.0",
   "private": true,
+  "description": "攀岩社交平台 - 微信静态网页托管版本",
   "scripts": {
-    "dev:mp-weixin": "uni -p mp-weixin",
-    "build:mp-weixin": "uni build -p mp-weixin",
     "dev:h5": "uni",
-    "build:h5": "uni build"
+    "build:h5": "uni build",
+    "build": "npm run build:h5",
+    "preview": "cd dist/build/h5 && python -m http.server 8080"
   },
   "dependencies": {
-    "@cloudbase/js-sdk": "^2.28.5",
+    "@cloudbase/js-sdk": "^1.8.4",
     "@dcloudio/uni-app": "3.0.0-4020920240930001",
     "@dcloudio/uni-components": "3.0.0-4020920240930001",
     "@dcloudio/uni-h5": "3.0.0-4020920240930001",

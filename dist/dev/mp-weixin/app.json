@@ -1,0 +1,28 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/conversation-list/conversation-list",
+    "pages/add-friend/add-friend",
+    "pages/community/community",
+    "pages/venues/venues",
+    "pages/profile/profile",
+    "pages/blindbox/blindbox",
+    "pages/post-create/post-create",
+    "pages/venue-detail/venue-detail",
+    "pages/activity-detail/activity-detail",
+    "pages/edit-profile/edit-profile",
+    "pages/beginner-guide/beginner-guide",
+    "pages/chat/chat",
+    "pages/smart-partner/smart-partner",
+    "pages/climb-records/climb-records",
+    "pages/market/market",
+    "pages/market-item-detail/market-item-detail",
+    "pages/market-item-create/market-item-create",
+    "pages/event-list/event-list",
+    "pages/event-create/event-create",
+    "pages/climb-request/climb-request"
+  ],
+  "usingComponents": {}
+}
